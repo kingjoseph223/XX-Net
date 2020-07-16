@@ -234,11 +234,7 @@ def main():
                 allow_remote = 1
                 module_init.xargs["allow_remote"] = 1
 
-    if os.path.isfile(running_file):
-        restart_from_except = True
-    else:
-        restart_from_except = False
-
+    restart_from_except = True if os.path.isfile(running_file) else False
     module_init.start_all_auto()
     web_control.start(allow_remote)
 

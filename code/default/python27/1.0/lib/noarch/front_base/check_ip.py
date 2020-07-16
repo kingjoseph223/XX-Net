@@ -30,8 +30,7 @@ class CheckIp(object):
         try:
             conn = hyper.HTTP20Connection(ssl_sock, host=host, ip=ssl_sock.ip_str, port=443)
             conn.request('GET', self.config.check_ip_path)
-            response = conn.get_response()
-            return response
+            return conn.get_response()
         except Exception as e:
             self.logger.exception("http2 get response fail:%r", e)
             return False

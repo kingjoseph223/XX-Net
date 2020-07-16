@@ -65,11 +65,7 @@ class ControlHandler(simple_http_server.HttpServerHandler):
         reqs = urlparse.parse_qs(req, keep_blank_values=True)
         data = ''
 
-        if reqs["cmd"]:
-            cmd = reqs["cmd"][0]
-        else:
-            cmd = "get_last"
-
+        cmd = reqs["cmd"][0] if reqs["cmd"] else "get_last"
         if cmd == "get_last":
             max_line = int(reqs["max_line"][0])
             data = xlog.get_last_lines(max_line)
@@ -88,11 +84,7 @@ class ControlHandler(simple_http_server.HttpServerHandler):
             value = self.postvars[key][0]
             reqs[key] = value
 
-        if "cmd" in reqs and reqs["cmd"]:
-            cmd = reqs["cmd"]
-        else:
-            cmd = "get"
-
+        cmd = reqs["cmd"] if "cmd" in reqs and reqs["cmd"] else "get"
         if cmd == "get":
             rules = g.user_rules.get_rules()
             rules["res"] = "success"
@@ -104,11 +96,7 @@ class ControlHandler(simple_http_server.HttpServerHandler):
 
     def req_config_handler(self):
         reqs = self.postvars
-        if "cmd" in reqs and reqs["cmd"]:
-            cmd = reqs["cmd"][0]
-        else:
-            cmd = "get"
-
+        cmd = reqs["cmd"][0] if "cmd" in reqs and reqs["cmd"] else "get"
         if cmd == "get":
             data = {
                 "pac_policy": g.config.pac_policy,
@@ -144,11 +132,7 @@ class ControlHandler(simple_http_server.HttpServerHandler):
 
     def req_cache_handler(self):
         reqs = self.postvars
-        if "cmd" in reqs and reqs["cmd"]:
-            cmd = reqs["cmd"][0]
-        else:
-            cmd = "get"
-
+        cmd = reqs["cmd"][0] if "cmd" in reqs and reqs["cmd"] else "get"
         if cmd == "get":
             g.domain_cache.save(True)
             g.ip_cache.save(True)

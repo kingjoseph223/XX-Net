@@ -86,7 +86,7 @@ class GAEProxyHandler(simple_http_server.HttpServerHandler):
         If browser send localhost:xxx request to GAE_proxy,
         we forward it to localhost.
         """
-        request_headers = dict((k.title(), v) for k, v in self.headers.items())
+        request_headers = {k.title(): v for k, v in self.headers.items()}
         payload = b''
         if 'Content-Length' in request_headers:
             try:
@@ -102,8 +102,7 @@ class GAEProxyHandler(simple_http_server.HttpServerHandler):
                 self.command, self.path, request_headers, payload)
             return
 
-        out_list = []
-        out_list.append("HTTP/1.1 %d\r\n" % response.status)
+        out_list = ["HTTP/1.1 %d\r\n" % response.status]
         for key in response.headers:
             key = key.title()
             out_list.append("%s: %s\r\n" % (key, response.headers[key]))
@@ -213,11 +212,7 @@ class GAEProxyHandler(simple_http_server.HttpServerHandler):
             self.close_connection = 1
             return
 
-        if isinstance(self.connection, ssl.SSLSocket):
-            schema = "https"
-        else:
-            schema = "http"
-
+        schema = "https" if isinstance(self.connection, ssl.SSLSocket) else "http"
         if self.path[0] == '/':
             self.host = self.headers['Host']
             self.url = '%s://%s%s' % (schema, host, self.path)
@@ -251,7 +246,7 @@ class GAEProxyHandler(simple_http_server.HttpServerHandler):
 
     # Called by do_METHOD and do_CONNECT_AGENT
     def go_AGENT(self):
-        request_headers = dict((k.title(), v) for k, v in self.headers.items())
+        request_headers = {k.title(): v for k, v in self.headers.items()}
         payload = self.read_payload()
 
         if self.command == "OPTIONS":
@@ -270,7 +265,7 @@ class GAEProxyHandler(simple_http_server.HttpServerHandler):
             xlog.debug("Host:%s Direct redirect to https", self.host)
             return self.wfile.write(('HTTP/1.1 301\r\nLocation: %s\r\nContent-Length: 0\r\n\r\n' % self.url.replace('http://', 'https://', 1)).encode())
 
-        request_headers = dict((k.title(), v) for k, v in self.headers.items())
+        request_headers = {k.title(): v for k, v in self.headers.items()}
         payload = self.read_payload()
 
         xlog.debug("DIRECT %s %s from:%s", self.command, self.url, self.address_string())
@@ -321,7 +316,6 @@ class GAEProxyHandler(simple_http_server.HttpServerHandler):
 # called by smart_router
 def wrap_ssl(sock, host, port, client_address):
     certfile = CertUtil.get_cert(host or 'www.google.com')
-    ssl_sock = ssl.wrap_socket(sock, keyfile=CertUtil.cert_keyfile,
+    return ssl.wrap_socket(sock, keyfile=CertUtil.cert_keyfile,
                                certfile=certfile, server_side=True)
-    return ssl_sock
 

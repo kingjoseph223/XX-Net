@@ -507,6 +507,7 @@ class UniversalConstructedTypeDecoder(AbstractConstructedDecoder):
 
         asn1Object = asn1Spec.clone()
 
+        idx = 0
         if asn1Spec.typeId in (univ.Sequence.typeId, univ.Set.typeId):
 
             namedTypes = asn1Spec.componentType
@@ -515,7 +516,6 @@ class UniversalConstructedTypeDecoder(AbstractConstructedDecoder):
             isDeterministic = not isSetType and not namedTypes.hasOptionalOrDefault
 
             seenIndices = set()
-            idx = 0
             while head:
                 if not namedTypes:
                     componentType = None
@@ -598,8 +598,6 @@ class UniversalConstructedTypeDecoder(AbstractConstructedDecoder):
 
             componentType = asn1Spec.componentType
 
-            idx = 0
-
             while head:
                 component, head = decodeFun(head, componentType, **options)
                 asn1Object.setComponentByPosition(
@@ -635,6 +633,7 @@ class UniversalConstructedTypeDecoder(AbstractConstructedDecoder):
 
         asn1Object = asn1Spec.clone()
 
+        idx = 0
         if asn1Spec.typeId in (univ.Sequence.typeId, univ.Set.typeId):
 
             namedTypes = asn1Object.componentType
@@ -643,7 +642,6 @@ class UniversalConstructedTypeDecoder(AbstractConstructedDecoder):
             isDeterministic = not isSetType and not namedTypes.hasOptionalOrDefault
 
             seenIndices = set()
-            idx = 0
             while substrate:
                 if len(namedTypes) <= idx:
                     asn1Spec = None
@@ -733,8 +731,6 @@ class UniversalConstructedTypeDecoder(AbstractConstructedDecoder):
             asn1Object = asn1Spec.clone()
 
             componentType = asn1Spec.componentType
-
-            idx = 0
 
             while substrate:
                 component, substrate = decodeFun(substrate, componentType, allowEoo=True, **options)
@@ -870,7 +866,7 @@ class AnyDecoder(AbstractSimpleDecoder):
                      tagSet=None, length=None, state=None,
                      decodeFun=None, substrateFun=None,
                      **options):
-        if asn1Spec is None or asn1Spec is not None and tagSet != asn1Spec.tagSet:
+        if asn1Spec is None or tagSet != asn1Spec.tagSet:
             fullSubstrate = options['fullSubstrate']
 
             # untagged Any container, recover inner header substrate
@@ -1063,22 +1059,21 @@ class Decoder(object):
                  decodeFun=None, substrateFun=None,
                  **options):
 
-        if debug.logger & debug.flagDecoder:
-            logger = debug.logger
-        else:
-            logger = None
-
+        logger = debug.logger if debug.logger & debug.flagDecoder else None
         if logger:
             logger('decoder called at scope %s with state %d, working with up to %d octets of substrate: %s' % (debug.scope, state, len(substrate), debug.hexdump(substrate)))
 
         allowEoo = options.pop('allowEoo', False)
 
         # Look for end-of-octets sentinel
-        if allowEoo and self.supportIndefLength:
-            if substrate[:2] == self.__eooSentinel:
-                if logger:
-                    logger('end-of-octets sentinel found')
-                return eoo.endOfOctets, substrate[2:]
+        if (
+            allowEoo
+            and self.supportIndefLength
+            and substrate[:2] == self.__eooSentinel
+        ):
+            if logger:
+                logger('end-of-octets sentinel found')
+            return eoo.endOfOctets, substrate[2:]
 
         value = noValue
 
@@ -1216,10 +1211,7 @@ class Decoder(object):
                         concreteDecoder = tagMap[tagSet[:1]]
                     except KeyError:
                         concreteDecoder = None
-                    if concreteDecoder:
-                        state = stDecodeValue
-                    else:
-                        state = stTryAsExplicitTag
+                    state = stDecodeValue if concreteDecoder else stTryAsExplicitTag
                 if logger:
                     logger('codec %s chosen by a built-in type, decoding %s' % (concreteDecoder and concreteDecoder.__class__.__name__ or "<none>", state is stDecodeValue and 'value' or 'as explicit tag'))
                     debug.scope.push(concreteDecoder is None and '?' or concreteDecoder.protoComponent.__class__.__name__)

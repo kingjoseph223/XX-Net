@@ -49,11 +49,7 @@ def to_host_port_tuple(host_port_str, default_port=80):
     )
 
     host = uri.host.strip('[]')
-    if not uri.port:
-        port = default_port
-    else:
-        port = int(uri.port)
-
+    port = default_port if not uri.port else int(uri.port)
     return (host, port)
 
 

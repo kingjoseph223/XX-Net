@@ -19,7 +19,7 @@ class Flags(collections.MutableSet):
     unexpected flags.
     """
     def __init__(self, defined_flags):
-        self._valid_flags = set(flag.name for flag in defined_flags)
+        self._valid_flags = {flag.name for flag in defined_flags}
         self._flags = set()
 
     def __contains__(self, x):

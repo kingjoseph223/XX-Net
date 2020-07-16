@@ -21,13 +21,9 @@ def set_proxy(args):
 
 def is_workable():
     global workable_call_times
-    if workable_call_times == 0:
-        loop_num = 8
-    else:
-        loop_num = 1
-
+    loop_num = 8 if workable_call_times == 0 else 1
     workable_call_times += 1
-    for i in xrange(0, loop_num):
+    for _ in xrange(0, loop_num):
         for front in front_dispatcher.session_fronts:
             score = front.get_dispatcher().get_score()
             if score is None:

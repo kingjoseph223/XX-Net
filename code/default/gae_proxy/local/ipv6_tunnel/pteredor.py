@@ -151,8 +151,6 @@ def get_sock(port):
             if port:
                 print('bind local port %d fail: %r' % (_port, e))
                 return
-            if e.args[0] == errno.EADDRINUSE:
-                pass
 
 def is_ipv4(ip):
     try:
@@ -312,7 +310,6 @@ class teredo_prober(object):
                     self.receive_ra_packet()
             except Exception as e:
                 logger.exception('receive procedure fail once: %r', e)
-                pass
 
     def send_rs_packet(self, rs_packet, dst_ip):
         rs_packet = rs_packet.type_cone if self.rs_cone_flag else rs_packet.type_restricted
@@ -339,7 +336,7 @@ class teredo_prober(object):
             second_server_ip = get_second_server_ip(server_ip) 
         else:
             second_server_ip = None
-        for i in range(3):
+        for _ in range(3):
             try:
                 return self.qualify(server_ip, second_server_ip)
             except Exception as e:
@@ -597,9 +594,10 @@ if '__main__' == __name__:
         remote_port = None
     done_disabled = False
     if os.name == 'nt':
-        if raw_input(confirm_stop).lower() == 'y':
-            if runas('netsh interface teredo set state disable'):
-                done_disabled = True
+        if raw_input(confirm_stop).lower() == 'y' and runas(
+            'netsh interface teredo set state disable'
+        ):
+            done_disabled = True
         win32runas.runas("win_reset_gp.py")
         print(os.system('netsh interface teredo show state'))
     recommend, nat_type = main(*args, local_port=local_port, remote_port=remote_port)
@@ -612,20 +610,19 @@ if '__main__' == __name__:
             import platform
             client_ext = 'natawareclient' if platform.version()[0] > '6' else 'enterpriseclient'
             client = client_ext if ip.startswith(local_ip_startswith) else 'client'
-    if recommend:
-        if os.name == 'nt' and \
-                raw_input(confirm_set).lower() == 'y':
-            cmd = 'netsh interface teredo set state type=%s servername=%s.'
-            if raw_input(confirm_reset).lower() == 'y':
-                cmd += ' refreshinterval=default'
-            if not remote_port:
-                cmd += ' clientport=default'
-            runas(cmd % (client, recommend[0]))
-            print(wait_info)
-            time.sleep(10)
-            print(os.system('netsh interface teredo show state'))
-            done_disabled = False
-    if done_disabled:
-        if runas('netsh interface teredo set state type=%s' % client):
-            print(resume_info)
+    if recommend and os.name == 'nt' and raw_input(confirm_set).lower() == 'y':
+        cmd = 'netsh interface teredo set state type=%s servername=%s.'
+        if raw_input(confirm_reset).lower() == 'y':
+            cmd += ' refreshinterval=default'
+        if not remote_port:
+            cmd += ' clientport=default'
+        runas(cmd % (client, recommend[0]))
+        print(wait_info)
+        time.sleep(10)
+        print(os.system('netsh interface teredo show state'))
+        done_disabled = False
+    if done_disabled and runas(
+        'netsh interface teredo set state type=%s' % client
+    ):
+        print(resume_info)
     raw_input(confirm_over)

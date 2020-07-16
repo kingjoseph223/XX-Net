@@ -17,7 +17,7 @@ def download_file(url, filename):
     if os.path.isfile(filename):
         return True
 
-    for i in range(0, 4):
+    for i in range(4):
         try:
             xlog.info("download %s to %s, retry:%d", url, filename, i)
             req = request(url, i, timeout=120)
@@ -30,12 +30,12 @@ def download_file(url, filename):
                 continue
 
             start_time = time.time()
-            timeout = 300
-
             if req.chunked:
 
                 downloaded = 0
                 with open(filename, 'wb') as fp:
+                    timeout = 300
+
                     while True:
                         time_left = timeout - (time.time() - start_time)
                         if time_left < 0:
@@ -52,9 +52,9 @@ def download_file(url, filename):
             else:
                 file_size = int(req.getheader('Content-Length', 0))
 
-                left = file_size
                 downloaded = 0
                 with open(filename, 'wb') as fp:
+                    left = file_size
                     while True:
                         chunk_len = min(65536, left)
                         if not chunk_len:
@@ -110,7 +110,11 @@ def download_unzip(url, extract_path):
 
 
 def download_worker():
-    if not ("arm" in platform.machine() or "mips" in platform.machine() or "aarch64" in platform.machine()):
+    if (
+        "arm" not in platform.machine()
+        and "mips" not in platform.machine()
+        and "aarch64" not in platform.machine()
+    ):
         # If not Andorid/IOS/Router, download browser plugin
         switchyomega_path = os.path.join(top_path, "SwitchyOmega")
         download_file("https://github.com/XX-net/XX-Net/releases/download/3.15.0/SwitchyOmega.crx", os.path.join(switchyomega_path, "SwitchyOmega.crx"))

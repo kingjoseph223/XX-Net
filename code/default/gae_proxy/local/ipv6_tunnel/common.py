@@ -150,5 +150,4 @@ def get_line_value(r, n):
     if len(lp) < 2:
         return None
 
-    value = lp[1].strip()
-    return value
+    return lp[1].strip()

@@ -154,9 +154,7 @@ def main(args):
             g.server_host = g.config.server_host
             g.server_port = g.config.server_port
             g.balance = 99999999
-        elif g.config.api_server:
-            pass
-        else:
+        elif not g.config.api_server:
             xlog.debug("please check x-tunnel server in config")
 
     g.http_client = front_dispatcher

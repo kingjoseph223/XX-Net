@@ -139,10 +139,7 @@ class IpManager():
         self.search_more_ip()
 
     def is_ip_enough(self):
-        if len(self.ip_list) >= self.max_good_ip_num:
-            return True
-        else:
-            return False
+        return len(self.ip_list) >= self.max_good_ip_num
 
     def load_config(self):
         self.scan_ip_thread_num = self.config.max_scan_ip_thread_num
@@ -177,16 +174,8 @@ class IpManager():
                 domain = str_l[1]
                 server = str_l[2]
                 handshake_time = int(str_l[3])
-                if len(str_l) > 4:
-                    fail_times = int(str_l[4])
-                else:
-                    fail_times = 0
-
-                if len(str_l) > 5:
-                    down_fail = int(str_l[5])
-                else:
-                    down_fail = 0
-
+                fail_times = int(str_l[4]) if len(str_l) > 4 else 0
+                down_fail = int(str_l[5]) if len(str_l) > 5 else 0
                 #self.logger.info("load ip: %s time:%d domain:%s server:%s", ip, handshake_time, domain, server)
                 self.add_ip(ip_str, handshake_time, domain, server, fail_times, down_fail, False)
             except Exception as e:
@@ -253,7 +242,7 @@ class IpManager():
                 if "." in ip_str and self.config.use_ipv6 == "force_ipv6":
                     continue
 
-                if not "." in ip_str and self.config.use_ipv6 == "force_ipv4":
+                if "." not in ip_str and self.config.use_ipv6 == "force_ipv4":
                     continue
 
                 if 'gws' not in self.ip_dict[ip_str]['server']:
@@ -317,8 +306,7 @@ class IpManager():
                 last_ip = self.ip_list[i]
                 if self.ip_dict[last_ip]['fail_times'] > 0:
                     continue
-                handshake_time = self.ip_dict[last_ip]['handshake_time']
-                return handshake_time
+                return self.ip_dict[last_ip]['handshake_time']
 
             return 9999
         except:
@@ -348,7 +336,7 @@ class IpManager():
 
             ip_connect_interval = ip_num * self.scan_recheck_interval + 200 if to_recheck else self.ip_connect_interval
 
-            for i in range(ip_num):
+            for _ in range(ip_num):
                 time_now = time.time()
                 if self.ip_pointer >= ip_num:
                     if time_now - self.ip_pointer_reset_time < 1:
@@ -365,7 +353,7 @@ class IpManager():
                 if "." in ip_str and self.config.use_ipv6 == "force_ipv6":
                     continue
 
-                if not "." in ip_str and self.config.use_ipv6 == "force_ipv4":
+                if "." not in ip_str and self.config.use_ipv6 == "force_ipv4":
                     continue
 
                 get_time = self.ip_dict[ip_str]["get_time"]
@@ -503,7 +491,7 @@ class IpManager():
         self.ip_lock.acquire()
         try:
             time_now = time.time()
-            if not ip_str in self.ip_dict:
+            if ip_str not in self.ip_dict:
                 self.logger.debug("report_connect_fail %s not exist", ip_str)
                 return
 
@@ -559,7 +547,7 @@ class IpManager():
         self.ip_lock.acquire()
         try:
             time_now = time.time()
-            if not ip_str in self.ip_dict:
+            if ip_str not in self.ip_dict:
                 return
 
             if self.ip_dict[ip_str]['down_fail'] == 0:
@@ -568,7 +556,7 @@ class IpManager():
             self.ip_dict[ip_str]['down_fail'] += 1
             self.append_ip_history(ip_str, reason)
             self.ip_dict[ip_str]["down_fail_time"] = time_now
-            # self.logger.debug("ssl_closed %s", ip)
+                # self.logger.debug("ssl_closed %s", ip)
         except Exception as e:
             self.logger.error("ssl_closed %s err:%s", ip_str, e)
         finally:
@@ -578,11 +566,10 @@ class IpManager():
         #self.logger.debug("%s ssl_closed:%s", ip, reason)
         self.ip_lock.acquire()
         try:
-            if ip_str in self.ip_dict:
-                if self.ip_dict[ip_str]['links']:
-                    self.ip_dict[ip_str]['links'] -= 1
-                    self.append_ip_history(ip_str, "C[%s]" % reason)
-                    # self.logger.debug("ssl_closed %s", ip)
+            if ip_str in self.ip_dict and self.ip_dict[ip_str]['links']:
+                self.ip_dict[ip_str]['links'] -= 1
+                self.append_ip_history(ip_str, "C[%s]" % reason)
+                # self.logger.debug("ssl_closed %s", ip)
         except Exception as e:
             self.logger.error("ssl_closed %s err:%s", ip_str, e)
         finally:
@@ -664,17 +651,13 @@ class IpManager():
             # may deleted by other thread
             return
 
-        if not result:
-            if first_report:
-                if self.ip_dict[ip_str]['fail_times'] <= 2:
-                    # connect max fail 3 times.
-                    # do nothing
-                    return
-                else:
-                    time.sleep(5)
-                    self.recheck_ip(ip_str)
-                    return
-
+        if not result and first_report:
+            if self.ip_dict[ip_str]['fail_times'] > 2:
+                time.sleep(5)
+                self.recheck_ip(ip_str)
+            # connect max fail 3 times.
+            # do nothing
+            return
         if not result or not result.ok:
             self.report_connect_fail(ip_str, force_remove=True)
             self.logger.debug("recheck_ip:%s real fail, removed.", ip_str)
@@ -757,7 +740,7 @@ class IpManager():
         if new_thread_num < 1:
             return
 
-        for i in range(0, new_thread_num):
+        for _ in range(new_thread_num):
             self.scan_thread_lock.acquire()
             self.scan_thread_count += 1
             self.scan_thread_lock.release()
@@ -775,7 +758,7 @@ class IpManager():
 
         self.keep_scan_all_exist_ip = True
         scan_threads = []
-        for i in range(0, 50):
+        for _ in range(50):
             th = threading.Thread(target=self.scan_exist_ip_worker, )
             th.start()
             scan_threads.append(th)

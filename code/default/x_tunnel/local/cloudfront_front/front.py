@@ -76,8 +76,7 @@ class Front(object):
             )
             self.dispatchs[host] = http_dispatcher
 
-        dispatcher = self.dispatchs[host]
-        return dispatcher
+        return self.dispatchs[host]
 
     def request(self, method, host, path="/", headers={}, data="", timeout=120):
         dispatcher = self.get_dispatcher(host)

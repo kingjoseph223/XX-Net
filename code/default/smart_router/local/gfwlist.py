@@ -48,7 +48,7 @@ class GfwList(object):
 
         # check avoid wrong match like xgoogle.com
         dpl = host.split(".")
-        for i in range(0, len(dpl)):
+        for i in range(len(dpl)):
             h = ".".join(dpl[i:])
             if h in self.gfw_black_list:
                 return True
@@ -56,13 +56,7 @@ class GfwList(object):
         return False
 
     def is_white(self, host):
-        if host.endswith(self.gfw_white_list):
-            return True
-        else:
-            return False
+        return bool(host.endswith(self.gfw_white_list))
 
     def is_advertisement(self, host):
-        if host.endswith(self.advertisement_list):
-            return True
-        else:
-            return False
+        return bool(host.endswith(self.advertisement_list))

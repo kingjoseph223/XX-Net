@@ -23,11 +23,14 @@ class PipeSocks(object):
         self.running = True
 
     def __str__(self):
-        outs = ["Pipe Sockets:"]
-        outs.append("buf_size=%d" % self.buf_size)
-        outs.append("running=%d" % self.running)
-        outs.append("")
-        outs.append("socket dict:")
+        outs = [
+            "Pipe Sockets:",
+            "buf_size=%d" % self.buf_size,
+            "running=%d" % self.running,
+            "",
+            "socket dict:",
+        ]
+
         for s in self.sock_dict:
             outs.append(" %s =%s" % (s, self.sock_dict[s]))
 

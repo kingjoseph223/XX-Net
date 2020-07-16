@@ -49,7 +49,7 @@ InternetSetOption.restype  = BOOL
 
 def disable_proxy():
     _,values_num,_ = winreg.QueryInfoKey(CONNECTIONS)
-    for i in range(0, values_num):
+    for i in range(values_num):
         try:
             key, value,_ = winreg.EnumValue(CONNECTIONS, i)
         except:
@@ -124,7 +124,7 @@ def set_proxy_server(proxy_addr, conn_name='DefaultConnectionSettings'):
 def set_proxy(proxy_addr):
     _,values_num,_ = winreg.QueryInfoKey(CONNECTIONS)
     if values_num:
-        for i in range(0, values_num):
+        for i in range(values_num):
             try:
                 key,value,_ = winreg.EnumValue(CONNECTIONS, i)
             except:

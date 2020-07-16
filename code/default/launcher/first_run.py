@@ -22,13 +22,13 @@ py27lib = os.path.join(python27_2_path, "lib")
 # add path.
 
 def exec_check():
-    if not sys.platform == "win32":
+    if sys.platform != "win32":
         return
 
     if not os.path.isdir(python27_2_path):
         download_unzip_python_env()
 
-    if not py27lib in sys.path:
+    if py27lib not in sys.path:
         sys.path.append(py27lib)
 
 

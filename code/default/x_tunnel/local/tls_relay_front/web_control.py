@@ -94,11 +94,7 @@ class ControlHandler(simple_http_server.HttpServerHandler):
                 down_fail_time = time_now - down_fail_time
 
             data_active = front.ip_manager.ip_dict[ip]["data_active"]
-            if data_active:
-                active_time = time_now - data_active
-            else:
-                active_time = 0
-
+            active_time = time_now - data_active if data_active else 0
             history = front.ip_manager.ip_dict[ip]["history"]
             t0 = 0
             str_out = ''

@@ -61,8 +61,7 @@ def set_bits(data,value,offset,bits=1):
     """
     mask = ((1 << bits) - 1) << offset
     clear = 0xffff ^ mask
-    data = (data & clear) | ((value << offset) & mask)
-    return data
+    return (data & clear) | ((value << offset) & mask)
 
 def binary(n,count=16,reverse=False):
     """

@@ -136,10 +136,7 @@ class Decoder(object):
         self.__typeMap = typeMap
 
     def __call__(self, pyObject, asn1Spec, **options):
-        if debug.logger & debug.flagDecoder:
-            logger = debug.logger
-        else:
-            logger = None
+        logger = debug.logger if debug.logger & debug.flagDecoder else None
         if logger:
             debug.scope.push(type(pyObject).__name__)
             logger('decoder called at scope %s, working with type %s' % (debug.scope, type(pyObject).__name__))

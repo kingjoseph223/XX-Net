@@ -6,11 +6,7 @@ import sys
 
 class SimpleI18N:
     def __init__(self, lang=None):
-        if lang:
-            self.lang = lang
-        else:
-            self.lang = self.get_os_language()
-
+        self.lang = lang if lang else self.get_os_language()
         if not self.lang:
             self.lang = "en_US"
 

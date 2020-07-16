@@ -691,18 +691,22 @@ class Scanner(object):
     def check_document_start(self):
 
         # DOCUMENT-START:   ^ '---' (' '|'\n')
-        if self.column == 0:
-            if self.prefix(3) == u'---'  \
-                    and self.peek(3) in u'\0 \t\r\n\x85\u2028\u2029':
-                return True
+        if (
+            self.column == 0
+            and self.prefix(3) == u'---'
+            and self.peek(3) in u'\0 \t\r\n\x85\u2028\u2029'
+        ):
+            return True
 
     def check_document_end(self):
 
         # DOCUMENT-END:     ^ '...' (' '|'\n')
-        if self.column == 0:
-            if self.prefix(3) == u'...'  \
-                    and self.peek(3) in u'\0 \t\r\n\x85\u2028\u2029':
-                return True
+        if (
+            self.column == 0
+            and self.prefix(3) == u'...'
+            and self.peek(3) in u'\0 \t\r\n\x85\u2028\u2029'
+        ):
+            return True
 
     def check_block_entry(self):
 
@@ -913,10 +917,7 @@ class Scanner(object):
         # Therefore we restrict aliases to numbers and ASCII letters.
         start_mark = self.get_mark()
         indicator = self.peek()
-        if indicator == u'*':
-            name = 'alias'
-        else:
-            name = 'anchor'
+        name = 'alias' if indicator == u'*' else 'anchor'
         self.forward()
         length = 0
         ch = self.peek(length)
@@ -983,11 +984,7 @@ class Scanner(object):
     def scan_block_scalar(self, style):
         # See the specification for details.
 
-        if style == '>':
-            folded = True
-        else:
-            folded = False
-
+        folded = True if style == '>' else False
         chunks = []
         start_mark = self.get_mark()
 
@@ -1062,10 +1059,7 @@ class Scanner(object):
         increment = None
         ch = self.peek()
         if ch in u'+-':
-            if ch == '+':
-                chomping = True
-            else:
-                chomping = False
+            chomping = True if ch == '+' else False
             self.forward()
             ch = self.peek()
             if ch in u'0123456789':
@@ -1084,10 +1078,7 @@ class Scanner(object):
             self.forward()
             ch = self.peek()
             if ch in u'+-':
-                if ch == '+':
-                    chomping = True
-                else:
-                    chomping = False
+                chomping = True if ch == '+' else False
                 self.forward()
         ch = self.peek()
         if ch not in u'\0 \r\n\x85\u2028\u2029':
@@ -1145,10 +1136,7 @@ class Scanner(object):
         # mark the beginning and the end of them. Therefore we are less
         # restrictive then the specification requires. We only need to check
         # that document separators are not included in scalars.
-        if style == '"':
-            double = True
-        else:
-            double = False
+        double = True if style == '"' else False
         chunks = []
         start_mark = self.get_mark()
         quote = self.peek()
@@ -1262,8 +1250,10 @@ class Scanner(object):
             # Instead of checking indentation, we check for document
             # separators.
             prefix = self.prefix(3)
-            if (prefix == u'---' or prefix == u'...')   \
-                    and self.peek(3) in u'\0 \t\r\n\x85\u2028\u2029':
+            if (
+                prefix in [u'---', u'...']
+                and self.peek(3) in u'\0 \t\r\n\x85\u2028\u2029'
+            ):
                 raise ScannerError("while scanning a quoted scalar", start_mark,
                         "found unexpected document separator", self.get_mark())
             while self.peek() in u' \t':
@@ -1335,8 +1325,10 @@ class Scanner(object):
             line_break = self.scan_line_break()
             self.allow_simple_key = True
             prefix = self.prefix(3)
-            if (prefix == u'---' or prefix == u'...')   \
-                    and self.peek(3) in u'\0 \t\r\n\x85\u2028\u2029':
+            if (
+                prefix in [u'---', u'...']
+                and self.peek(3) in u'\0 \t\r\n\x85\u2028\u2029'
+            ):
                 return
             breaks = []
             while self.peek() in u' \r\n\x85\u2028\u2029':
@@ -1345,8 +1337,10 @@ class Scanner(object):
                 else:
                     breaks.append(self.scan_line_break())
                     prefix = self.prefix(3)
-                    if (prefix == u'---' or prefix == u'...')   \
-                            and self.peek(3) in u'\0 \t\r\n\x85\u2028\u2029':
+                    if (
+                        prefix in [u'---', u'...']
+                        and self.peek(3) in u'\0 \t\r\n\x85\u2028\u2029'
+                    ):
                         return
             if line_break != u'\n':
                 chunks.append(line_break)

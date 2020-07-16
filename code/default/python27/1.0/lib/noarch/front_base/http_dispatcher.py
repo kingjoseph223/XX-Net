@@ -388,11 +388,7 @@ class HttpsDispatcher(object):
             self.second_stats = Queue.deque()
             self.last_statistic_time = now
 
-        if len(self.rtts):
-            rtt = max(self.rtts)
-        else:
-            rtt = 0
-
+        rtt = max(self.rtts) if len(self.rtts) else 0
         self.second_stat = {
             "rtt": rtt,
             "sent": self.total_sent - self.last_sent,

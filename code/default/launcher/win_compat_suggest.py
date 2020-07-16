@@ -133,7 +133,7 @@ def main():
         for name in v:
             blacklist[name] = k[lang]
 
-    processlist = dict((process.name.lower(), process) for process in get_process_list())
+    processlist = {process.name.lower(): process for process in get_process_list()}
     softwares = [name for name in blacklist if name.lower() in processlist]
 
     if softwares:

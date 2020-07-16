@@ -42,8 +42,7 @@ def get(path, default_val=""):
         cmd = "config"
         for p in path:
             cmd += '["%s"]' % p
-        value = eval(cmd)
-        return value
+        return eval(cmd)
     except:
         return default_val
 

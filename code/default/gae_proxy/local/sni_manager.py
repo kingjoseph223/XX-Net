@@ -17,16 +17,3 @@ class SniManager(object):
 
     def get(self):
         return None
-
-        n = random.randint(2, 3)
-        ws = []
-        for i in range(0, n):
-            w = self.slice.get()
-            ws.append(w)
-
-        p = random.choice(self.plus)
-
-        name = p.join(ws)
-        name += "." + random.choice(self.end)
-
-        return name

@@ -72,8 +72,7 @@ def request(url, retry=0, timeout=30):
             "pass": None
         }, timeout=timeout, cert=cert)
 
-    res = client.request("GET", url, read_payload=False)
-    return res
+    return client.request("GET", url, read_payload=False)
 
 
 def download_file(url, filename):
@@ -87,7 +86,7 @@ def download_file(url, filename):
             xlog.warn("url in downloading, %s", url)
             return False
 
-    for i in range(0, 2):
+    for i in range(2):
         try:
             xlog.info("download %s to %s, retry:%d", url, filename, i)
             req = request(url, i, timeout=120)
@@ -95,14 +94,14 @@ def download_file(url, filename):
                 continue
 
             start_time = time.time()
-            timeout = 300
-
             if req.chunked:
                 # don't known the file size, set to large for show the progress
                 progress[url]["size"] = 20 * 1024 * 1024
 
                 downloaded = 0
                 with open(filename, 'wb') as fp:
+                    timeout = 300
+
                     while True:
                         time_left = timeout - (time.time() - start_time)
                         if time_left < 0:
@@ -179,8 +178,7 @@ def current_version():
             p = re.compile(r'([0-9]+)\.([0-9]+)\.([0-9]+)')
             m = p.match(content)
             if m:
-                version = m.group(1) + "." + m.group(2) + "." + m.group(3)
-                return version
+                return m.group(1) + "." + m.group(2) + "." + m.group(3)
     except:
         xlog.warn("get_version_fail in update_from_github")
 
@@ -194,8 +192,7 @@ def get_github_versions():
     if not download_file(readme_url, readme_target):
         raise IOError("get README %s fail:" % readme_url)
 
-    versions = parse_readme_versions(readme_target)
-    return versions
+    return parse_readme_versions(readme_target)
 
 
 def get_hash_sum(version):
@@ -315,8 +312,7 @@ def get_local_versions():
                 p = re.compile(r'([0-9]+)\.([0-9]+)\.([0-9]+)')
                 m = p.match(content)
                 if m:
-                    version = m.group(1) + "." + m.group(2) + "." + m.group(3)
-                    return version
+                    return m.group(1) + "." + m.group(2) + "." + m.group(3)
         except:
             return False
 
@@ -332,8 +328,7 @@ def get_local_versions():
 
 
 def get_current_version_dir():
-    current_dir = os.path.split(root_path)[-1]
-    return current_dir
+    return os.path.split(root_path)[-1]
 
 
 def del_version(version):

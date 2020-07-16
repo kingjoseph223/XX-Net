@@ -16,7 +16,7 @@ def win32_notify( msg='msg', title='Title'):
 def reset_teredo():
     gp_split = b'[\x00'
     gp_teredo = 'v6Transition\x00;Teredo'
-    gp_teredo = '\x00'.join(b for b in gp_teredo).encode()
+    gp_teredo = '\x00'.join(iter(gp_teredo)).encode()
 
     with open(gp_regpol_file, 'rb') as f:
         gp_regpol_old = f.read().split(gp_split)

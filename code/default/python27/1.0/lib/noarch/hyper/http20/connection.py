@@ -475,7 +475,6 @@ class HTTP20Connection(object):
             # Unexpected frames belong to extensions. Just drop it on the
             # floor, but log so that users know that something happened.
             log.warning("Received unknown frame, type %d", frame.type)
-            pass
 
     def _update_settings(self, frame):
         """
@@ -574,9 +573,8 @@ class HTTP20Connection(object):
         max_frame_size = self._settings[SettingsFrame.SETTINGS_MAX_FRAME_SIZE]
         if frame.body_len > max_frame_size:
             raise ValueError(
-                     "Frame size %d exceeds maximum frame size setting %d" %
-                     (frame.body_len,
-                      self._settings[SettingsFrame.SETTINGS_MAX_FRAME_SIZE])
+                "Frame size %d exceeds maximum frame size setting %d"
+                % (frame.body_len, max_frame_size)
             )
 
         log.info(

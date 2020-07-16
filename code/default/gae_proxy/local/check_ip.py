@@ -96,8 +96,7 @@ class CheckAllIp(object):
                     raise Exception()
 
                 try:
-                    ip = line.split()[0]
-                    return ip
+                    return line.split()[0]
                 except:
                     continue
 
@@ -128,7 +127,7 @@ class CheckAllIp(object):
                 self.write_ip(ip, res.domain, res.handshake_time)
 
     def run(self):
-        for i in range(0, 100):
+        for _ in range(100):
             threading.Thread(target=self.checker).start()
 
 
@@ -153,16 +152,8 @@ if __name__ == "__main__":
 
     print("test ip:%s" % ip)
 
-    if len(sys.argv) > 2:
-        top_domain = sys.argv[2]
-    else:
-        top_domain = None
-
-    if len(sys.argv) > 3:
-        wait_time = int(sys.argv[3])
-    else:
-        wait_time = 0
-
+    top_domain = sys.argv[2] if len(sys.argv) > 2 else None
+    wait_time = int(sys.argv[3]) if len(sys.argv) > 3 else 0
     ca_certs = os.path.join(current_path, "cacert.pem")
     openssl_context = SSLContext(
         logger, ca_certs=ca_certs,

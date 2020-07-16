@@ -44,10 +44,7 @@ class LruCache(object):
         return len(self.cache)
 
     def __contains__(self, item):
-        if item in self.cache:
-            return True
-        else:
-            return False
+        return item in self.cache
 
     def __iter__(self):
         return self.cache.__iter__()

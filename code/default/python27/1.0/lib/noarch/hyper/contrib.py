@@ -124,11 +124,7 @@ class HTTP20Adapter(HTTPAdapter):
                 self._headers = headers
 
             def get_all(self, name, default=None):
-                values = []
-
-                for n, v in self._headers:
-                    if n == name.lower():
-                        values.append(v)
+                values = [v for n, v in self._headers if n == name.lower()]
 
                 if not values:
                     return default

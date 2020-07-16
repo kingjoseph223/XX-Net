@@ -136,10 +136,7 @@ class ConnectCreator(object):
         else:
             try:
                 h2 = ssl_sock.get_alpn_proto_negotiated()
-                if h2 == "h2":
-                    ssl_sock.h2 = True
-                else:
-                    ssl_sock.h2 = False
+                ssl_sock.h2 = True if h2 == "h2" else False
             except Exception as e:
                 # xlog.exception("alpn:%r", e)
                 if hasattr(ssl_sock._connection, "protos") and ssl_sock._connection.protos == "h2":

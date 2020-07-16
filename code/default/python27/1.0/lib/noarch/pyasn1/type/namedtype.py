@@ -159,17 +159,27 @@ class NamedTypes(object):
         self.__ambiguousTypes = 'terminal' not in kwargs and self.__computeAmbiguousTypes() or {}
         self.__uniqueTagMap = self.__computeTagMaps(unique=True)
         self.__nonUniqueTagMap = self.__computeTagMaps(unique=False)
-        self.__hasOptionalOrDefault = any([True for namedType in self.__namedTypes
-                                           if namedType.isDefaulted or namedType.isOptional])
-        self.__hasOpenTypes = any([True for namedType in self.__namedTypes
-                                   if namedType.openType])
+        self.__hasOptionalOrDefault = any(
+            True
+            for namedType in self.__namedTypes
+            if namedType.isDefaulted or namedType.isOptional
+        )
+
+        self.__hasOpenTypes = any(True for namedType in self.__namedTypes
+                                       if namedType.openType)
 
         self.__requiredComponents = frozenset(
-                [idx for idx, nt in enumerate(self.__namedTypes) if not nt.isOptional and not nt.isDefaulted]
-            )
-        self.__keys = frozenset([namedType.name for namedType in self.__namedTypes])
-        self.__values = tuple([namedType.asn1Object for namedType in self.__namedTypes])
-        self.__items = tuple([(namedType.name, namedType.asn1Object) for namedType in self.__namedTypes])
+            idx
+            for idx, nt in enumerate(self.__namedTypes)
+            if not nt.isOptional and not nt.isDefaulted
+        )
+
+        self.__keys = frozenset(namedType.name for namedType in self.__namedTypes)
+        self.__values = tuple(namedType.asn1Object for namedType in self.__namedTypes)
+        self.__items = tuple(
+            (namedType.name, namedType.asn1Object)
+            for namedType in self.__namedTypes
+        )
 
     def __repr__(self):
         representation = ', '.join(['%r' % x for x in self.__namedTypes])

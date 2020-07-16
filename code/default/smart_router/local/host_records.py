@@ -194,11 +194,7 @@ class DomainRecords(object):
         ip_rate = {}
         for ip in record["ip"]:
             connect_time = g.ip_cache.get_connect_time(ip)
-            if not connect_time:
-                ip_rate[ip] = 9999
-            else:
-                ip_rate[ip] = connect_time
-
+            ip_rate[ip] = 9999 if not connect_time else connect_time
         if not ip_rate:
             return []
 
@@ -310,8 +306,7 @@ class IpRecord(object):
 
     def get_content(self):
         with open(self.file_path, "r") as fd:
-            content = fd.read()
-            return content
+            return fd.read()
 
     def load(self):
         if not os.path.isfile(self.file_path):
@@ -367,11 +362,7 @@ class IpRecord(object):
 
     def update_rule(self, ip, port, rule):
         record = self.get(ip)
-        if "." in ip:
-            connect_time = 6000
-        else:
-            connect_time = 4000
-
+        connect_time = 6000 if "." in ip else 4000
         if not record:
             record = {"r": rule, "c": connect_time}
         else:

@@ -93,9 +93,8 @@ class Parser(object):
 
     def check_event(self, *choices):
         # Check the type of the next event.
-        if self.current_event is None:
-            if self.state:
-                self.current_event = self.state()
+        if self.current_event is None and self.state:
+            self.current_event = self.state()
         if self.current_event is not None:
             if not choices:
                 return True
@@ -106,16 +105,14 @@ class Parser(object):
 
     def peek_event(self):
         # Get the next event.
-        if self.current_event is None:
-            if self.state:
-                self.current_event = self.state()
+        if self.current_event is None and self.state:
+            self.current_event = self.state()
         return self.current_event
 
     def get_event(self):
         # Get the next event and proceed further.
-        if self.current_event is None:
-            if self.state:
-                self.current_event = self.state()
+        if self.current_event is None and self.state:
+            self.current_event = self.state()
         value = self.current_event
         self.current_event = None
         return value
@@ -361,10 +358,7 @@ class Parser(object):
                             start_mark, end_mark)
                     self.state = self.states.pop()
                 else:
-                    if block:
-                        node = 'block'
-                    else:
-                        node = 'flow'
+                    node = 'block' if block else 'flow'
                     token = self.peek_token()
                     raise ParserError("while parsing a %s node" % node, start_mark,
                             "expected the node content, but found %r" % token.id,

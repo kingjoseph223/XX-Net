@@ -24,8 +24,7 @@ def request(url, retry=0, timeout=30):
         "pass": None
     }, timeout=timeout, cert=cert)
 
-    res = client.request("GET", url, read_payload=False)
-    return res
+    return client.request("GET", url, read_payload=False)
 
 
 def download_file(url, filename):
@@ -33,7 +32,7 @@ def download_file(url, filename):
     if os.path.isfile(filename):
         return True
 
-    for i in range(0, 4):
+    for i in range(4):
         try:
             xlog.info("download %s to %s, retry:%d", url, filename, i)
             req = request(url, i, timeout=120)
@@ -46,12 +45,12 @@ def download_file(url, filename):
                 continue
 
             start_time = time.time()
-            timeout = 300
-
             if req.chunked:
 
                 downloaded = 0
                 with open(filename, 'wb') as fp:
+                    timeout = 300
+
                     while True:
                         time_left = timeout - (time.time() - start_time)
                         if time_left < 0:
@@ -68,9 +67,9 @@ def download_file(url, filename):
             else:
                 file_size = int(req.getheader('Content-Length', 0))
 
-                left = file_size
                 downloaded = 0
                 with open(filename, 'wb') as fp:
+                    left = file_size
                     while True:
                         chunk_len = min(65536, left)
                         if not chunk_len:

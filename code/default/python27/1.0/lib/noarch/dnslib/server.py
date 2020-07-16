@@ -323,10 +323,7 @@ class DNSServer(object):
             server:     socketserver class (default: UDPServer/TCPServer)
         """
         if not server:
-            if tcp:
-                server = TCPServer
-            else:
-                server = UDPServer
+            server = TCPServer if tcp else UDPServer
         self.server = server((address,port),handler)
         self.server.resolver = resolver
         self.server.logger = logger or DNSLogger()

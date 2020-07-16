@@ -319,10 +319,7 @@ class URIReference(namedtuple('URIReference', URI_COMPONENTS)):
                 )
             else:
                 if resolving.path is None:
-                    if resolving.query is not None:
-                        query = resolving.query
-                    else:
-                        query = base_uri.query
+                    query = resolving.query if resolving.query is not None else base_uri.query
                     target = resolving.copy_with(
                         scheme=base_uri.scheme,
                         authority=base_uri.authority,
@@ -382,4 +379,4 @@ class URIReference(namedtuple('URIReference', URI_COMPONENTS)):
 def valid_ipv4_host_address(host):
     # If the host exists, and it might be IPv4, check each byte in the
     # address.
-    return all([0 <= int(byte, base=10) <= 255 for byte in host.split('.')])
+    return all(0 <= int(byte, base=10) <= 255 for byte in host.split('.'))

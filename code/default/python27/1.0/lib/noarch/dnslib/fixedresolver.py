@@ -59,11 +59,7 @@ if __name__ == '__main__':
     args = p.parse_args()
 
     if args.zonefile:
-        if args.zonefile == '-':
-            args.response = sys.stdin
-        else:
-            args.response = open(args.zonefile)
-
+        args.response = sys.stdin if args.zonefile == '-' else open(args.zonefile)
     resolver = FixedResolver(args.response)
     logger = DNSLogger(args.log,args.log_prefix)
 

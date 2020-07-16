@@ -53,17 +53,20 @@ def win32_version_string():
     if retcode != 0:
         raise Exception("Failed to get OS version")
 
-    version_string = "Version:%d-%d; Build:%d; Platform:%d; CSD:%s; ServicePack:%d-%d; Suite:%d; ProductType:%d" %  (
-        os_version.dwMajorVersion, os_version.dwMinorVersion,
-        os_version.dwBuildNumber,
-        os_version.dwPlatformId,
-        os_version.szCSDVersion,
-        os_version.wServicePackMajor, os_version.wServicePackMinor,
-        os_version.wSuiteMask,
-        os_version.wReserved
+    return (
+        "Version:%d-%d; Build:%d; Platform:%d; CSD:%s; ServicePack:%d-%d; Suite:%d; ProductType:%d"
+        % (
+            os_version.dwMajorVersion,
+            os_version.dwMinorVersion,
+            os_version.dwBuildNumber,
+            os_version.dwPlatformId,
+            os_version.szCSDVersion,
+            os_version.wServicePackMajor,
+            os_version.wServicePackMinor,
+            os_version.wSuiteMask,
+            os_version.wReserved,
+        )
     )
-
-    return version_string
 
 
 def os_detail():

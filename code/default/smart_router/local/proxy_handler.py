@@ -215,11 +215,7 @@ class ProxyServer():
         if len(user_id):
             xlog.debug("Socks4 user_id:%s", user_id)
 
-        if domain_mode:
-            addr = self.read_null_end_line()
-        else:
-            addr = ip
-
+        addr = self.read_null_end_line() if domain_mode else ip
         reply = b"\x00\x5a" + addr_pack + struct.pack(">H", port)
         sock.send(reply)
 

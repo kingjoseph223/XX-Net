@@ -62,8 +62,7 @@ class CheckAllIp(object):
                     raise Exception()
 
                 try:
-                    ip = line.split()[0]
-                    return ip
+                    return line.split()[0]
                 except:
                     continue
 
@@ -93,7 +92,7 @@ class CheckAllIp(object):
             self.write_ip(ip, res.domain, res.handshake_time)
 
     def run(self):
-        for i in range(0, 10):
+        for _ in range(10):
             threading.Thread(target=self.checker).start()
 
 

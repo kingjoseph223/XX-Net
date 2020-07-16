@@ -117,9 +117,11 @@ class Config(object):
                         self.end_rules[section] = tuple(end_fix)
 
     def check_host(self, domain, port=None):
-        if port == 80:
-            if domain in self.redirect_https_host_rules or domain.endswith(self.redirect_https_end_rules):
-                return "redirect_https"
+        if port == 80 and (
+            domain in self.redirect_https_host_rules
+            or domain.endswith(self.redirect_https_end_rules)
+        ):
+            return "redirect_https"
 
         if domain in self.host_rules:
             return self.host_rules[domain]

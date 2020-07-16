@@ -38,9 +38,7 @@ def copy_VCR_files():
 def is_winxp():
     if sys.platform != "win32":
         return False
-    if platform.release() != "XP":
-        return False
-    return True
+    return platform.release() == "XP"
 
 def check_setup():  # 40ms
     if is_winxp():

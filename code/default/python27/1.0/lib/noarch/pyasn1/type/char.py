@@ -84,7 +84,7 @@ class AbstractCharacterString(univ.OctetString):
             return str(self)
 
         def asNumbers(self, padding=True):
-            return tuple([ord(x) for x in str(self)])
+            return tuple(ord(x) for x in str(self))
 
     else:
         def __str__(self):

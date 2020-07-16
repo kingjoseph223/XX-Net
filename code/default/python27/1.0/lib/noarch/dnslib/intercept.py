@@ -47,14 +47,14 @@ class InterceptResolver(BaseResolver):
         qname = request.q.qname
         qtype = QTYPE[request.q.qtype]
         # Try to resolve locally unless on skip list
-        if not any([qname.matchGlob(s) for s in self.skip]):
+        if not any(qname.matchGlob(s) for s in self.skip):
             for name,rtype,rr in self.zone:
                 if qname.matchGlob(name) and (qtype in (rtype,'ANY','CNAME')):
                     a = copy.copy(rr)
                     a.rname = qname
                     reply.add_answer(a)
         # Check for NXDOMAIN
-        if any([qname.matchGlob(s) for s in self.nxdomain]):
+        if any(qname.matchGlob(s) for s in self.nxdomain):
             reply.header.rcode = getattr(RCODE,'NXDOMAIN')
             return reply
         # Otherwise proxy

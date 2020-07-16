@@ -50,13 +50,13 @@ class _IlocWrapper:
 
         if isinstance(index, slice):
             keys = _list[index]
-            del _list[index]
             for key in keys:
                 _delitem(key)
         else:
             key = _list[index]
-            del _list[index]
             _delitem(key)
+
+        del _list[index]
 
 class SortedDict(dict):
     """
@@ -494,7 +494,7 @@ class KeysView(AbstractKeysView, Set, Sequence):
     if hexversion < 0x03000000:
         def isdisjoint(self, that):
             """Return True if and only if *that* is disjoint with self."""
-            return not any(key in self._list for key in that)
+            return all(key not in self._list for key in that)
     else:
         def isdisjoint(self, that):
             """Return True if and only if *that* is disjoint with self."""
@@ -583,11 +583,11 @@ class ValuesView(AbstractValuesView, Sequence):
     if hexversion < 0x03000000:
         def count(self, value):
             """Return the number of occurrences of *value* in self."""
-            return sum(1 for val in self._dict.itervalues() if val == value)
+            return self._dict.itervalues().count(value)
     else:
         def count(self, value):
             """Return the number of occurrences of *value* in self."""
-            return sum(1 for val in _dict.values() if val == value)
+            return _dict.values().count(value)
     def __lt__(self, that):
         raise TypeError
     def __gt__(self, that):
@@ -724,10 +724,7 @@ class ItemsView(AbstractItemsView, Set, Sequence):
         def isdisjoint(self, that):
             """Return True if and only if *that* is disjoint with self."""
             _dict = self._dict
-            for key, value in that:
-                if key in _dict and _dict[key] == value:
-                    return False
-            return True
+            return not any(key in _dict and _dict[key] == value for key, value in that)
     else:
         def isdisjoint(self, that):
             """Return True if and only if *that* is disjoint with self."""
