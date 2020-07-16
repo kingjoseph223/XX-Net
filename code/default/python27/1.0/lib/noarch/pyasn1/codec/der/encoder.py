@@ -20,11 +20,7 @@ class SetEncoder(encoder.SetEncoder):
         """
         component, asn1Spec = componentAndType
 
-        if asn1Spec is None:
-            compType = component
-        else:
-            compType = asn1Spec
-
+        compType = component if asn1Spec is None else asn1Spec
         if compType.typeId == univ.Choice.typeId and not compType.tagSet:
             if asn1Spec is None:
                 return component.getComponent().tagSet

@@ -125,7 +125,7 @@ class HeaderTable(object):
         """
         original_index = index
         index -= 1
-        if 0 <= index:
+        if index >= 0:
             if index < HeaderTable.STATIC_TABLE_LENGTH:
                 return HeaderTable.STATIC_TABLE[index]
 

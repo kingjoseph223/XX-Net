@@ -83,14 +83,16 @@ class CheckNetwork(object):
             return self.network_stat
 
     def is_ok(self):
-        if config.check_local_network_rules == "normal":
+        if (
+            config.check_local_network_rules == "normal"
+            or config.check_local_network_rules != "force_fail"
+            and config.check_local_network_rules != "force_ok"
+        ):
             return self.network_stat == "OK"
         elif config.check_local_network_rules == "force_fail":
             return False
-        elif config.check_local_network_rules == "force_ok":
-            return True
         else:
-            return self.network_stat == "OK"
+            return True
 
     def _test_host(self, url):
         try:

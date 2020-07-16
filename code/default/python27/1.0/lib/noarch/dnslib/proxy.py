@@ -38,8 +38,7 @@ class ProxyResolver(BaseResolver):
             proxy_r = request.send(self.address,self.port)
         else:
             proxy_r = request.send(self.address,self.port,tcp=True)
-        reply = DNSRecord.parse(proxy_r)
-        return reply
+        return DNSRecord.parse(proxy_r)
 
 class PassthroughDNSHandler(DNSHandler):
     """

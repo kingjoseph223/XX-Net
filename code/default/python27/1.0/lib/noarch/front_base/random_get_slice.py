@@ -33,5 +33,4 @@ class RandomGetSlice(object):
             if len(ns) < 3:
                 raise Exception("random read line fail:%s" % slice)
 
-            line = ns[1]
-            return line
+            return ns[1]

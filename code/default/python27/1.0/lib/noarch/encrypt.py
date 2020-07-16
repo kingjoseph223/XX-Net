@@ -100,8 +100,7 @@ class Encryptor(object):
 
     def get_method_info(self, method):
         method = method.lower()
-        m = method_supported.get(method)
-        return m
+        return method_supported.get(method)
 
     def iv_len(self):
         return len(self.cipher_iv)

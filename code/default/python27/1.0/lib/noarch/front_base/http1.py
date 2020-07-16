@@ -16,8 +16,7 @@ class Http1Worker(HttpWorker):
         self.task = None
         self.request_onway = False
         self.transfered_size = 0
-        self.trace_time = []
-        self.trace_time.append([ssl_sock.create_time, "connect"])
+        self.trace_time = [[ssl_sock.create_time, "connect"]]
         self.record_active("init")
 
         self.task_queue = Queue.Queue()

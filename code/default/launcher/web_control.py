@@ -301,18 +301,16 @@ class Http_Handler(simple_http_server.HttpServerHandler):
                     data = '{"res":"success"}'
             elif 'popup_webui' in reqs:
                 popup_webui = int(reqs['popup_webui'][0])
-                if popup_webui != 0 and popup_webui != 1:
-                    data = '{"res":"fail, popup_webui:%s"}' % popup_webui
-                else:
+                if popup_webui in [0, 1]:
                     config.set(["modules", "launcher", "popup_webui"], popup_webui)
                     config.save()
 
                     data = '{"res":"success"}'
+                else:
+                    data = '{"res":"fail, popup_webui:%s"}' % popup_webui
             elif 'allow_remote_switch' in reqs:
                 allow_remote_switch = int(reqs['allow_remote_switch'][0])
-                if allow_remote_switch != 0 and allow_remote_switch != 1:
-                    data = '{"res":"fail, allow_remote_connect:%s"}' % allow_remote_switch
-                else:
+                if allow_remote_switch in [0, 1]:
                     config.set(["modules", "launcher", "allow_remote_connect"], allow_remote_switch)
                     config.save()
 
@@ -339,33 +337,35 @@ class Http_Handler(simple_http_server.HttpServerHandler):
                     start()
                     module_init.start_all_auto()
                     xlog.debug("launcher web control restarted.")
+                else:
+                    data = '{"res":"fail, allow_remote_connect:%s"}' % allow_remote_switch
             elif 'show_systray' in reqs:
                 show_systray = int(reqs['show_systray'][0])
-                if show_systray != 0 and show_systray != 1:
-                    data = '{"res":"fail, show_systray:%s"}' % show_systray
-                else:
+                if show_systray in [0, 1]:
                     config.set(["modules", "launcher", "show_systray"], show_systray)
                     config.save()
 
                     data = '{"res":"success"}'
+                else:
+                    data = '{"res":"fail, show_systray:%s"}' % show_systray
             elif 'show_compat_suggest' in reqs:
                 show_compat_suggest = int(reqs['show_compat_suggest'][0])
-                if show_compat_suggest != 0 and show_compat_suggest != 1:
-                    data = '{"res":"fail, show_compat_suggest:%s"}' % show_compat_suggest
-                else:
+                if show_compat_suggest in [0, 1]:
                     config.set(["show_compat_suggest"], show_compat_suggest)
                     config.save()
 
                     data = '{"res":"success"}'
+                else:
+                    data = '{"res":"fail, show_compat_suggest:%s"}' % show_compat_suggest
             elif 'no_mess_system' in reqs:
                 no_mess_system = int(reqs['no_mess_system'][0])
-                if no_mess_system != 0 and no_mess_system != 1:
-                    data = '{"res":"fail, no_mess_system:%s"}' % no_mess_system
-                else:
+                if no_mess_system in [0, 1]:
                     config.set(["no_mess_system"], no_mess_system)
                     config.save()
 
                     data = '{"res":"success"}'
+                else:
+                    data = '{"res":"fail, no_mess_system:%s"}' % no_mess_system
             elif 'keep_old_ver_num' in reqs:
                 keep_old_ver_num = int(reqs['keep_old_ver_num'][0])
                 if keep_old_ver_num < 0 or keep_old_ver_num > 99:
@@ -377,9 +377,7 @@ class Http_Handler(simple_http_server.HttpServerHandler):
                     data = '{"res":"success"}'
             elif 'auto_start' in reqs:
                 auto_start = int(reqs['auto_start'][0])
-                if auto_start != 0 and auto_start != 1:
-                    data = '{"res":"fail, auto_start:%s"}' % auto_start
-                else:
+                if auto_start in [0, 1]:
                     if auto_start:
                         autorun.enable()
                     else:
@@ -389,20 +387,20 @@ class Http_Handler(simple_http_server.HttpServerHandler):
                     config.save()
 
                     data = '{"res":"success"}'
+                else:
+                    data = '{"res":"fail, auto_start:%s"}' % auto_start
             elif 'show_detail' in reqs:
                 show_detail = int(reqs['show_detail'][0])
-                if show_detail != 0 and show_detail != 1:
-                    data = '{"res":"fail, show_detail:%s"}' % show_detail
-                else:
+                if show_detail in [0, 1]:
                     config.set(["modules", "gae_proxy", "show_detail"], show_detail)
                     config.save()
 
                     data = '{"res":"success"}'
+                else:
+                    data = '{"res":"fail, show_detail:%s"}' % show_detail
             elif 'gae_proxy_enable' in reqs:
                 gae_proxy_enable = int(reqs['gae_proxy_enable'][0])
-                if gae_proxy_enable != 0 and gae_proxy_enable != 1:
-                    data = '{"res":"fail, gae_proxy_enable:%s"}' % gae_proxy_enable
-                else:
+                if gae_proxy_enable in [0, 1]:
                     config.set(["modules", "gae_proxy", "auto_start"], gae_proxy_enable)
                     config.save()
                     if gae_proxy_enable:
@@ -411,11 +409,11 @@ class Http_Handler(simple_http_server.HttpServerHandler):
                         module_init.stop("gae_proxy")
                     self.load_module_menus()
                     data = '{"res":"success"}'
+                else:
+                    data = '{"res":"fail, gae_proxy_enable:%s"}' % gae_proxy_enable
             elif 'x_tunnel_enable' in reqs:
                 x_tunnel_enable = int(reqs['x_tunnel_enable'][0])
-                if x_tunnel_enable != 0 and x_tunnel_enable != 1:
-                    data = '{"res":"fail, x_tunnel_enable:%s"}' % x_tunnel_enable
-                else:
+                if x_tunnel_enable in [0, 1]:
                     config.set(["modules", "x_tunnel", "auto_start"], x_tunnel_enable)
                     config.save()
                     if x_tunnel_enable:
@@ -424,11 +422,11 @@ class Http_Handler(simple_http_server.HttpServerHandler):
                         module_init.stop("x_tunnel")
                     self.load_module_menus()
                     data = '{"res":"success"}'
+                else:
+                    data = '{"res":"fail, x_tunnel_enable:%s"}' % x_tunnel_enable
             elif 'smart_router_enable' in reqs:
                 smart_router_enable = int(reqs['smart_router_enable'][0])
-                if smart_router_enable != 0 and smart_router_enable != 1:
-                    data = '{"res":"fail, smart_router_enable:%s"}' % smart_router_enable
-                else:
+                if smart_router_enable in [0, 1]:
                     config.set(["modules", "smart_router", "auto_start"], smart_router_enable)
                     config.save()
                     if smart_router_enable:
@@ -437,6 +435,8 @@ class Http_Handler(simple_http_server.HttpServerHandler):
                         module_init.stop("smart_router")
                     self.load_module_menus()
                     data = '{"res":"success"}'
+                else:
+                    data = '{"res":"fail, smart_router_enable:%s"}' % smart_router_enable
             elif 'postUpdateStat' in reqs:
                 postUpdateStat = reqs['postUpdateStat'][0]
                 if postUpdateStat not in ["noChange", "isNew", "isPostUpdate"]:
@@ -497,7 +497,7 @@ class Http_Handler(simple_http_server.HttpServerHandler):
 
             s = ""
             for v in local_versions:
-                if not s == "":
+                if s != "":
                     s += ","
                 s += ' { "v":"%s" , "folder":"%s" } ' % (v[0], v[1])
             data = '[  %s  ]' % (s)
@@ -620,9 +620,6 @@ class Http_Handler(simple_http_server.HttpServerHandler):
                         break
                     ll = line[8:] + "\n" + pl
 
-                if ll[0] == "[":
-                    pass
-
                 dat += "%d KB, count:%d %s\n" % (stat.size / 1024, stat.count, ll)
 
             if hasattr(threading, "_start_trace"):
@@ -645,10 +642,9 @@ def test_proxy(type, host, port, user, passwd):
     if not host:
         return False
 
-    if host == "127.0.0.1":
-        if port in [8087, 1080, 8086]:
-            xlog.warn("set LAN Proxy to %s:%d fail.", host, port)
-            return False
+    if host == "127.0.0.1" and port in [8087, 1080, 8086]:
+        xlog.warn("set LAN Proxy to %s:%d fail.", host, port)
+        return False
 
     client = simple_http_client.Client(proxy={
         "type": type,
@@ -679,8 +675,6 @@ def test_proxy(type, host, port, user, passwd):
                 return True
         except Exception as e:
             xlog.exception("test_proxy %s fail:%r", url, e)
-            pass
-
     return False
 
 
@@ -696,10 +690,7 @@ def start(allow_remote=0):
     if allow_remote:
         xlog.info("allow remote access WebUI")
 
-    if isinstance(host_ip, basestring):
-        listen_ips = [host_ip]
-    else:
-        listen_ips = list(host_ip)
+    listen_ips = [host_ip] if isinstance(host_ip, basestring) else list(host_ip)
     if allow_remote and ("0.0.0.0" not in listen_ips or "::" not in listen_ips):
         listen_ips.append("0.0.0.0")
     addresses = [(listen_ip, host_port) for listen_ip in listen_ips]
@@ -723,8 +714,7 @@ def http_request(url, method="GET"):
     proxy_handler = urllib2.ProxyHandler({})
     opener = urllib2.build_opener(proxy_handler)
     try:
-        req = opener.open(url, timeout=30)
-        return req
+        return opener.open(url, timeout=30)
     except Exception as e:
         #xlog.exception("web_control http_request:%s fail:%s", url, e)
         return False
@@ -755,7 +745,7 @@ def confirm_module_ready(port):
         time.sleep(1)
         return False
 
-    for i in range(200):
+    for _ in range(200):
         req = http_request("http://127.0.0.1:%d/is_ready" % port)
         if req == False:
             time.sleep(1)
@@ -771,6 +761,5 @@ def confirm_module_ready(port):
     return False
 
 
-if __name__ == "__main__":
-    pass
+pass
     #confirm_xxnet_exit()

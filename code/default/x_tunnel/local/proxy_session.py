@@ -100,7 +100,7 @@ class ProxySession():
 
             self.running = True
 
-            for i in range(0, g.config.concurent_thread_num):
+            for i in range(g.config.concurent_thread_num):
                 self.roundtrip_thread[i] = threading.Thread(target=self.normal_roundtrip_worker)
                 self.roundtrip_thread[i].daemon = True
                 self.roundtrip_thread[i].start()
@@ -139,9 +139,6 @@ class ProxySession():
     def reporter(self):
         sleep(5)
         while g.running:
-            if not g.running:
-                break
-
             self.check_report_status()
             sleep(60)
 
@@ -181,7 +178,7 @@ class ProxySession():
 
     def get_stat(self, type="second"):
         def convert(num, units=('B', 'KB', 'MB', 'GB')):
-            for unit in units:
+            for _ in units:
                 if num >= 1024:
                     num /= 1024.0
                 else:
@@ -262,7 +259,7 @@ class ProxySession():
         out_string += "transfer_list: %d<br>\r\n" % len(self.transfer_list)
         for transfer_no in sorted(self.transfer_list.iterkeys()):
             transfer = self.transfer_list[transfer_no]
-            if "start" in self.transfer_list[transfer_no]:
+            if "start" in transfer:
                 time_way = " t:" + str((time.time() - self.transfer_list[transfer_no]["start"]))
             else:
                 time_way = ""
@@ -371,7 +368,6 @@ class ProxySession():
                 self.conn_list[conn_id].stop(reason="system reset")
             except Exception as e:
                 xlog.warn("stopping conn_id:%d fail:%r", conn_id, e)
-                pass
         # self.conn_list = {}
         xlog.debug("stop all connection finished")
 
@@ -547,10 +543,12 @@ class ProxySession():
             return
 
         xlog.debug("trigger %d, server_pool_size:%d", action_num, server_pool_size)
-        for _ in range(0, action_num):
+        for _ in range(action_num):
             self.wait_queue.notify()
 
     def normal_roundtrip_worker(self):
+        sleep_time = 1
+
         while self.running:
             data, ack = self.get_send_data()
             if not self.running:
@@ -578,8 +576,6 @@ class ProxySession():
             upload_post_data = str(upload_post_buf)
             upload_post_data = encrypt_data(upload_post_data)
             self.last_send_time = time.time()
-
-            sleep_time = 1
 
             start_time = time.time()
 
@@ -907,7 +903,7 @@ def update_quota_loop():
             g.config.login_account, g.config.login_password,
             is_register=False, update_server=False)
 
-        if g.quota - last_quota > 1024 * 1024 * 1024:
+        if last_quota - last_quota > 1024 * 1024 * 1024:
             xlog.info("update_quota_loop quota updated")
             return
 

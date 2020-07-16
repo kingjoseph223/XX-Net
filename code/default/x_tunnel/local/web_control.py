@@ -145,11 +145,7 @@ class ControlHandler(simple_http_server.HttpServerHandler):
         reqs = urlparse.parse_qs(req, keep_blank_values=True)
         data = ''
 
-        if reqs["cmd"]:
-            cmd = reqs["cmd"][0]
-        else:
-            cmd = "get_last"
-
+        cmd = reqs["cmd"][0] if reqs["cmd"] else "get_last"
         if cmd == "get_last":
             max_line = int(reqs["max_line"][0])
             data = xlog.get_last_lines(max_line)
@@ -218,10 +214,7 @@ class ControlHandler(simple_http_server.HttpServerHandler):
     def req_login_handler(self):
         def check_email(email):
             import re
-            if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-                return False
-            else:
-                return True
+            return bool(re.match(r"[^@]+@[^@]+\.[^@]+", email))
 
         username    = str(self.postvars['username'][0])
         #username = utils.get_printable(username)

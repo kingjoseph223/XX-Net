@@ -179,7 +179,7 @@ def send_header(wfile, keyword, value):
 
 
 def send_response(wfile, status=404, headers={}, body=''):
-    headers = dict((k.title(), v) for k, v in headers.items())
+    headers = {k.title(): v for k, v in headers.items()}
     if 'Transfer-Encoding' in headers:
         del headers['Transfer-Encoding']
     if 'Content-Length' not in headers:
@@ -756,11 +756,12 @@ class RangeFetch2(object):
             # xlog.debug("range req head:%s => %s", k, v)
             if k.lower() == "range":
                 req_range_begin, req_range_end = tuple(
-                    x for x in re.search(r'bytes=(\d*)-(\d*)', v).group(1, 2))
-                # break
+                    re.search(r'bytes=(\d*)-(\d*)', v).group(1, 2)
+                )
 
-        response_headers = dict((k.title(), v)
-                                for k, v in self.response.headers.items())
+                        # break
+
+        response_headers = {k.title(): v for k, v in self.response.headers.items()}
         content_range = response_headers['Content-Range']
         res_begin, res_end, res_length = tuple(int(x) for x in re.search(
             r'bytes (\d+)-(\d+)/(\d+)', content_range).group(1, 2, 3))
@@ -807,7 +808,7 @@ class RangeFetch2(object):
         fetch_times = int(
             (data_left_to_fetch + front.config.AUTORANGE_MAXSIZE - 1) / front.config.AUTORANGE_MAXSIZE)
         thread_num = min(front.config.AUTORANGE_THREADS, fetch_times)
-        for i in xrange(0, thread_num):
+        for _ in xrange(0, thread_num):
             threading.Thread(target=self.fetch_worker).start()
 
         threading.Thread(target=self.fetch, args=(
@@ -836,7 +837,7 @@ class RangeFetch2(object):
 
             try:
                 ret = self.wfile.write(data)
-                if ret == ssl.SSL_ERROR_WANT_WRITE or ret == ssl.SSL_ERROR_WANT_READ:
+                if ret in [ssl.SSL_ERROR_WANT_WRITE, ssl.SSL_ERROR_WANT_READ]:
                     xlog.debug(
                         "send to browser wfile.write ret:%d, retry", ret)
                     ret = self.wfile.write(data)
@@ -877,7 +878,7 @@ class RangeFetch2(object):
             self.fetch(begin, end, None)
 
     def fetch(self, begin, end, first_response):
-        headers = dict((k.title(), v) for k, v in self.headers.items())
+        headers = {k.title(): v for k, v in self.headers.items()}
         retry_num = 0
         while self.keep_running:
             retry_num += 1

@@ -124,10 +124,7 @@ class Asn1ItemBase(Asn1Item):
 
     @staticmethod
     def isNoValue(*values):
-        for value in values:
-            if value is not noValue:
-                return False
-        return True
+        return all(value is noValue for value in values)
 
     def prettyPrint(self, scope=0):
         raise NotImplementedError()

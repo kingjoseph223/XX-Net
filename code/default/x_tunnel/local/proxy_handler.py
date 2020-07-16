@@ -193,11 +193,7 @@ class Socks5Server():
         if len(user_id):
             xlog.debug("Socks4 user_id:%s", user_id)
 
-        if domain_mode:
-            addr = self.read_null_end_line()
-        else:
-            addr = ip
-
+        addr = self.read_null_end_line() if domain_mode else ip
         conn_id = proxy_session.create_conn(sock, addr, port)
         if not conn_id:
             xlog.warn("Socks4 connect fail, no conn_id")

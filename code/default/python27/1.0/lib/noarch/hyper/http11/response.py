@@ -81,11 +81,7 @@ class HTTP11Response(object):
         # can keep using the Connection object.
         # Strictly, we take a weakreference to this so that we don't set up a
         # reference cycle.
-        if connection is not None:
-            self._parent = weakref.ref(connection)
-        else:
-            self._parent = None
-
+        self._parent = weakref.ref(connection) if connection is not None else None
         self._buffered_data = b''
         self._chunker = None
 

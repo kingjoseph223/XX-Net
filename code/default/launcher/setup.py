@@ -84,8 +84,7 @@ def get_new_new_config():
     data_path = os.path.abspath(os.path.join(xxnet_unzip_path, 'data',
                                              'launcher', 'config.yaml'))
     try:
-        new_config = yaml.load(open(data_path, 'r'))
-        return new_config
+        return yaml.load(open(data_path, 'r'))
     except yaml.YAMLError as exc:
         print("Error in configuration file:", exc)
 
@@ -114,7 +113,6 @@ def install_xxnet_files():
             return hasher.hexdigest()
         except:
             return False
-        pass
 
     for root, subdirs, files in os.walk(xxnet_unzip_path):
         # print("root:", root)
@@ -149,8 +147,7 @@ def wait_xxnet_exit():
         proxy_handler = urllib2.ProxyHandler({})
         opener = urllib2.build_opener(proxy_handler)
         try:
-            req = opener.open(url)
-            return req
+            return opener.open(url)
         except Exception as e:
             # logging.exception("web_control http_request:%s fail:%s", url, e)
             return False

@@ -68,18 +68,16 @@ if sys.version_info[0:2] < (3, 2) or implementation != 'CPython':
             elif length and hexLength - length > 7:
                 raise OverflowError('int too big to convert')
 
-        firstOctet = int(hexValue[:2], 16)
-
         if signed:
+            firstOctet = int(hexValue[:2], 16)
+
             if firstOctet & 0x80:
                 if value >= 0:
                     hexValue = '00' + hexValue
             elif value < 0:
                 hexValue = 'ff' + hexValue
 
-        octets_value = a2b_hex(hexValue)
-
-        return octets_value
+        return a2b_hex(hexValue)
 
     def bitLength(number):
         # bits in unsigned number

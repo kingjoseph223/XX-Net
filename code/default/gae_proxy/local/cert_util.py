@@ -27,7 +27,7 @@ if __name__ == "__main__":
     if sys.platform == "win32":
         win32_lib = os.path.abspath( os.path.join(python_path, 'lib', 'win32'))
         sys.path.append(win32_lib)
-    elif sys.platform == "linux" or sys.platform == "linux2":
+    elif sys.platform in ["linux", "linux2"]:
         linux_lib = os.path.abspath( os.path.join(python_path, 'lib', 'linux'))
         sys.path.append(linux_lib)
     elif sys.platform == "darwin":
@@ -44,8 +44,7 @@ from utils import check_ip_valid
 def get_cmd_out(cmd):
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out = proc.stdout
-    lines = out.readlines()
-    return lines
+    return out.readlines()
 
 
 class CertUtil(object):
@@ -182,8 +181,8 @@ class CertUtil(object):
 
     @staticmethod
     def get_cert(commonname, sans=None, full_name=False):
-        isip =  check_ip_valid(commonname)
         with CertUtil.ca_lock:
+            isip =  check_ip_valid(commonname)
             certfile = CertUtil._get_old_cert(commonname)
             if certfile:
                 return certfile
@@ -201,9 +200,8 @@ class CertUtil(object):
     @staticmethod
     def win32_notify( msg="msg", title="Title"):
         import ctypes
-        res = ctypes.windll.user32.MessageBoxW(None, msg, title, 1)
         # Yes:1 No:2
-        return res
+        return ctypes.windll.user32.MessageBoxW(None, msg, title, 1)
 
     @staticmethod
     def import_windows_ca(certfile):
@@ -318,9 +316,8 @@ class CertUtil(object):
 
         for filename in os.listdir(firefox_path):
             if filename.endswith(".default") and os.path.isdir(os.path.join(firefox_path, filename)):
-                config_path = os.path.join(firefox_path, filename)
                 #xlog.debug("Got Firefox path: %s", config_path)
-                return config_path
+                return os.path.join(firefox_path, filename)
 
     @staticmethod
     def import_linux_firefox_ca(common_name, ca_file):
@@ -406,9 +403,17 @@ class CertUtil(object):
 
         pemfile = "/etc/ssl/certs/CA.pem"
         new_certfile = "/usr/local/share/ca-certificates/CA.crt"
-        if not os.path.exists(pemfile) or not CertUtil.file_is_same(certfile, new_certfile):
-            if os.system('cp "%s" "%s" && update-ca-certificates' % (certfile, new_certfile)) != 0:
-                xlog.warning('install root certificate failed, Please run as administrator/root/sudo')
+        if (
+            (
+                not os.path.exists(pemfile)
+                or not CertUtil.file_is_same(certfile, new_certfile)
+            )
+            and os.system(
+                'cp "%s" "%s" && update-ca-certificates' % (certfile, new_certfile)
+            )
+            != 0
+        ):
+            xlog.warning('install root certificate failed, Please run as administrator/root/sudo')
 
     @staticmethod
     def file_is_same(file1, file2):
@@ -426,10 +431,7 @@ class CertUtil(object):
         except:
             return False
 
-        if buf1 != buf2:
-            return False
-        else:
-            return True
+        return buf1 == buf2
 
     @staticmethod
     def import_mac_ca(common_name, certfile):
@@ -441,8 +443,7 @@ class CertUtil(object):
             output = subprocess.check_output(args)
             for line in output.splitlines(True):
                 if len(line) == 53 and line.startswith("SHA-1 hash:"):
-                    sha1_hash = line[12:52]
-                    return sha1_hash
+                    return line[12:52]
 
         exist_ca_sha1 = get_exist_ca_sha1()
         if exist_ca_sha1 == ca_hash:

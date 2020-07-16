@@ -241,8 +241,7 @@ def request(args):
     response = conn.get_response()
     log.debug('Response Headers:\n%s', pformat(response.headers))
     ctype, charset = get_content_type_and_charset(response)
-    data = response.read()
-    return data
+    return response.read()
 
 
 def main(argv=None):

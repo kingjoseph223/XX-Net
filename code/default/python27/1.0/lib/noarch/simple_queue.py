@@ -138,7 +138,7 @@ class Queue(object):
                 self.waiters.append((end_time, lock))
             else:
                 is_max = True
-                for i in range(0, len(self.waiters)):
+                for i in range(len(self.waiters)):
                     try:
                         iend_time, ilock = self.waiters[i]
                         if iend_time > end_time:

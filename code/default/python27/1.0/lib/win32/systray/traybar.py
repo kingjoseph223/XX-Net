@@ -162,10 +162,7 @@ class SysTrayIcon(object):
         if self._hwnd is None:
             return
         hicon = self._load_icon()
-        if self._notify_id and not recreate:
-            message = NIM_MODIFY
-        else:
-            message = NIM_ADD
+        message = NIM_MODIFY if self._notify_id and not recreate else NIM_ADD
         self._notify_id = NotifyData(self._hwnd,
                           0,
                           NIF_ICON | NIF_MESSAGE | NIF_TIP,

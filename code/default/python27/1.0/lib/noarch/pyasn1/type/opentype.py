@@ -45,10 +45,7 @@ class OpenType(object):
 
     def __init__(self, name, typeMap=None):
         self.__name = name
-        if typeMap is None:
-            self.__typeMap = {}
-        else:
-            self.__typeMap = typeMap
+        self.__typeMap = {} if typeMap is None else typeMap
 
     @property
     def name(self):

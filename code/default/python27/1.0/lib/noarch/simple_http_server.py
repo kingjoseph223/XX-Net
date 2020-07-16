@@ -134,8 +134,6 @@ class HttpServerHandler():
             self.close_connection = 1
             if command != 'GET':
                 raise ParseReqFail("Req command format HTTP/0.9 line:%s" % requestline)
-        elif not words:
-            raise ParseReqFail("Req command format fail:%s" % requestline)
         else:
             raise ParseReqFail("Req command format fail:%s" % requestline)
         self.command, self.path, self.request_version = command, path, version
@@ -188,10 +186,8 @@ class HttpServerHandler():
         except IOError as e:
             if e.errno == errno.EPIPE:
                 self.logger.warn("PIPE error:%r", e)
-                pass
             else:
                 self.logger.warn("IOError:%r", e)
-                pass
         #except OpenSSL.SSL.SysCallError as e:
         #    self.logger.warn("socket error:%r", e)
             self.close_connection = 1
@@ -322,8 +318,7 @@ class HttpServerHandler():
             self.wfile.write(message)
 
     def send_response(self, mimetype="", content="", headers="", status=200):
-        data = []
-        data.append('HTTP/1.1 %d\r\n' % status)
+        data = ['HTTP/1.1 %d\r\n' % status]
         if len(mimetype):
             data.append('Content-Type: %s\r\n' % mimetype)
 
@@ -348,10 +343,7 @@ class HttpServerHandler():
 
     def send_redirect(self, url, headers={}, content="", status=307, text="Temporary Redirect"):
         headers["Location"] = url
-        data = []
-        data.append('HTTP/1.1 %d\r\n' % status)
-        data.append('Content-Length: %s\r\n' % len(content))
-
+        data = ['HTTP/1.1 %d\r\n' % status, 'Content-Length: %s\r\n' % len(content)]
         if len(headers):
             if isinstance(headers, dict):
                 for key in headers:
@@ -592,11 +584,7 @@ class TestHttpServer(HttpServerHandler):
             self.wfile.write('HTTP/1.1 200\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: %d\r\n\r\n%s' %(len(data), data) )
         elif url_path == '/null':
             mimetype = "application/x-binary"
-            if "size" in reqs:
-                file_size = int(reqs['size'][0])
-            else:
-                file_size = 1024 * 1024 * 1024
-
+            file_size = int(reqs['size'][0]) if "size" in reqs else 1024 * 1024 * 1024
             self.wfile.write('HTTP/1.1 200\r\nContent-Type: %s\r\nContent-Length: %s\r\n\r\n' % (mimetype, file_size))
             start = 0
             data = self.generate_random_lowercase(65535)
@@ -623,11 +611,7 @@ def main(data_path="."):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 2:
-        data_path = sys.argv[1]
-    else:
-        data_path = "."
-
+    data_path = sys.argv[1] if len(sys.argv) > 2 else "."
     try:
         main(data_path=data_path)
     except Exception:

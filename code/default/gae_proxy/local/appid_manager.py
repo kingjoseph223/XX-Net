@@ -28,7 +28,7 @@ class AppidManager(object):
     def reset_appid(self):
         # called by web_control
         with self.lock:
-            self.working_appid_list = list()
+            self.working_appid_list = []
             for appid in self.config.GAE_APPIDS:
                 if not appid:
                     self.config.GAE_APPIDS.remove(appid)

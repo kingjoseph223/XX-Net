@@ -334,10 +334,7 @@ class Boolean(Integer):
     # Optimization for faster codec lookup
     typeId = Integer.getTypeId()
 
-if sys.version_info[0] < 3:
-    SizedIntegerBase = long
-else:
-    SizedIntegerBase = int
+SizedIntegerBase = long if sys.version_info[0] < 3 else int
 
 
 class SizedInteger(SizedIntegerBase):
@@ -437,19 +434,18 @@ class BitString(base.AbstractSimpleAsn1Item):
     defaultBinValue = defaultHexValue = noValue
 
     def __init__(self, value=noValue, **kwargs):
-        if value is noValue:
-            if kwargs:
-                try:
-                    value = self.fromBinaryString(kwargs.pop('binValue'), internalFormat=True)
+        if value is noValue and kwargs:
+            try:
+                value = self.fromBinaryString(kwargs.pop('binValue'), internalFormat=True)
 
-                except KeyError:
-                    pass
+            except KeyError:
+                pass
 
-                try:
-                    value = self.fromHexString(kwargs.pop('hexValue'), internalFormat=True)
+            try:
+                value = self.fromHexString(kwargs.pop('hexValue'), internalFormat=True)
 
-                except KeyError:
-                    pass
+            except KeyError:
+                pass
 
         if value is noValue:
             if self.defaultBinValue is not noValue:
@@ -714,10 +710,7 @@ try:
 except NameError:  # Python 2.4
     # noinspection PyShadowingBuiltins
     def all(iterable):
-        for element in iterable:
-            if not element:
-                return False
-        return True
+        return all(iterable)
 
 
 class OctetString(base.AbstractSimpleAsn1Item):
@@ -792,19 +785,18 @@ class OctetString(base.AbstractSimpleAsn1Item):
     encoding = 'iso-8859-1'
 
     def __init__(self, value=noValue, **kwargs):
-        if kwargs:
-            if value is noValue:
-                try:
-                    value = self.fromBinaryString(kwargs.pop('binValue'))
+        if kwargs and value is noValue:
+            try:
+                value = self.fromBinaryString(kwargs.pop('binValue'))
 
-                except KeyError:
-                    pass
+            except KeyError:
+                pass
 
-                try:
-                    value = self.fromHexString(kwargs.pop('hexValue'))
+            try:
+                value = self.fromHexString(kwargs.pop('hexValue'))
 
-                except KeyError:
-                    pass
+            except KeyError:
+                pass
 
         if value is noValue:
             if self.defaultBinValue is not noValue:
@@ -855,7 +847,7 @@ class OctetString(base.AbstractSimpleAsn1Item):
             return str(self._value)
 
         def asNumbers(self):
-            return tuple([ord(x) for x in self._value])
+            return tuple(ord(x) for x in self._value)
 
     else:
         def prettyIn(self, value):
@@ -1073,11 +1065,7 @@ class Null(OctetString):
 
         return octets.str2octs('')
 
-if sys.version_info[0] <= 2:
-    intTypes = (int, long)
-else:
-    intTypes = (int,)
-
+intTypes = (int, long) if sys.version_info[0] <= 2 else (int, )
 numericTypes = intTypes + (float,)
 
 
@@ -1177,10 +1165,7 @@ class ObjectIdentifier(base.AbstractSimpleAsn1Item):
             or :class:`False` otherwise.
         """
         l = len(self)
-        if l <= len(other):
-            if self._value[:l] == other[:l]:
-                return True
-        return False
+        return l <= len(other) and self._value[:l] == other[:l]
 
     def prettyIn(self, value):
         if isinstance(value, ObjectIdentifier):
@@ -1191,14 +1176,14 @@ class ObjectIdentifier(base.AbstractSimpleAsn1Item):
                     'Malformed Object ID %s at %s: %s' % (value, self.__class__.__name__, sys.exc_info()[1])
                 )
             try:
-                return tuple([int(subOid) for subOid in value.split('.') if subOid])
+                return tuple(int(subOid) for subOid in value.split('.') if subOid)
             except ValueError:
                 raise error.PyAsn1Error(
                     'Malformed Object ID %s at %s: %s' % (value, self.__class__.__name__, sys.exc_info()[1])
                 )
 
         try:
-            tupleOfInts = tuple([int(subOid) for subOid in value if subOid >= 0])
+            tupleOfInts = tuple(int(subOid) for subOid in value if subOid >= 0)
 
         except (ValueError, TypeError):
             raise error.PyAsn1Error(
@@ -1890,11 +1875,10 @@ class SequenceOfAndSetOfBase(base.AbstractConstructedAsn1Item):
         The PyASN1 value objects can **additionally** participate in many operations
         involving regular Python objects (e.g. arithmetic, comprehension etc).
         """
-        for componentValue in self._componentValues:
-            if componentValue is noValue or not componentValue.isValue:
-                return False
-
-        return True
+        return not any(
+            componentValue is noValue or not componentValue.isValue
+            for componentValue in self._componentValues
+        )
 
 
 class SequenceOf(SequenceOfAndSetOfBase):
@@ -2374,9 +2358,11 @@ class SequenceAndSetBase(base.AbstractConstructedAsn1Item):
                                   subComponentType.isSameTypeWith or
                                   subComponentType.isSuperTypeOf)
 
-                if not subtypeChecker(value, matchTags, matchConstraints):
-                    if not componentType[idx].openType:
-                        raise error.PyAsn1Error('Component value is tag-incompatible: %r vs %r' % (value, componentType))
+                if (
+                    not subtypeChecker(value, matchTags, matchConstraints)
+                    and not componentType[idx].openType
+                ):
+                    raise error.PyAsn1Error('Component value is tag-incompatible: %r vs %r' % (value, componentType))
 
         if verifyConstraints and value.isValue:
             try:

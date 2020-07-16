@@ -335,10 +335,7 @@ class SettingsFrame(Frame):
         if not len(self.settings):
             return ""
 
-        kv = []
-        for k in self.settings:
-            kv.append(str(k) + ":" + str(self.settings[k]))
-
+        kv = [str(k) + ":" + str(self.settings[k]) for k in self.settings]
         return ";".join(kv)
 
 

@@ -103,7 +103,7 @@ def encode_component(uri_component, encoding):
 
     encoded_uri = bytearray()
 
-    for i in range(0, len(uri_bytes)):
+    for i in range(len(uri_bytes)):
         # Will return a single character bytestring on both Python 2 & 3
         byte = uri_bytes[i:i+1]
         byte_ord = ord(byte)

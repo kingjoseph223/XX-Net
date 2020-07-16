@@ -78,5 +78,4 @@ class Parser(object):
             headers.append((memoryview(name), memoryview(value)))
             index = end_index + 1
 
-        resp = Response(status, reason, minor_version, headers, end_index)
-        return resp
+        return Response(status, reason, minor_version, headers, end_index)

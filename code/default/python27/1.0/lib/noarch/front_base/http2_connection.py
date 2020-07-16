@@ -64,8 +64,7 @@ class RawFrame(object):
         return self.dat
 
     def __repr__(self):
-        out_str = "{type}".format(type=type(self).__name__)
-        return out_str
+        return "{type}".format(type=type(self).__name__)
 
 
 class Http2Worker(HttpWorker):
@@ -480,11 +479,13 @@ class Http2Worker(HttpWorker):
                 stream.max_frame_size += new_size
 
     def get_trace(self):
-        out_list = []
-        out_list.append(" continue_timeout:%d" % self.continue_timeout)
-        out_list.append(" processed:%d" % self.processed_tasks)
-        out_list.append(" h2.stream_num:%d" % len(self.streams))
-        out_list.append(" sni:%s, host:%s" % (self.ssl_sock.sni, self.ssl_sock.host))
+        out_list = [
+            " continue_timeout:%d" % self.continue_timeout,
+            " processed:%d" % self.processed_tasks,
+            " h2.stream_num:%d" % len(self.streams),
+            " sni:%s, host:%s" % (self.ssl_sock.sni, self.ssl_sock.host),
+        ]
+
         return ",".join(out_list)
 
     def check_active(self, now):

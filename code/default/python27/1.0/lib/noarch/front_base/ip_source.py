@@ -114,7 +114,7 @@ class Ipv4RangeSource(object):
 
             ip = ip_range[0] + id_2
             add_last_byte = ip % 256
-            if add_last_byte == 0 or add_last_byte == 255:
+            if add_last_byte in [0, 255]:
                 continue
 
             return utils.ip_num_to_string(ip)
@@ -139,10 +139,9 @@ class Ipv4PoolSource(object):
         if not os.path.isfile(self.dest_bin_fn):
             return False
 
-        if os.path.getmtime(self.dest_bin_fn) < os.path.getmtime(self.source_txt_fn):
-            return False
-
-        return True
+        return os.path.getmtime(self.dest_bin_fn) >= os.path.getmtime(
+            self.source_txt_fn
+        )
 
     def generate_bin(self):
         self.logger.info("generating binary ip pool file.")
@@ -178,8 +177,7 @@ class Ipv4PoolSource(object):
                 self.logger.warn("ip_pool.random_get_ip position:%d len:%d", position, len(ip_bin))
             else:
                 ip_num = struct.unpack("<I", ip_bin)[0]
-                ip = utils.ip_num_to_string(ip_num)
-                return ip
+                return utils.ip_num_to_string(ip_num)
         time.sleep(3)
         raise Exception("get ip fail.")
 
@@ -195,8 +193,7 @@ class Ipv6PoolSource(object):
     def get_ip(self):
         line = self.source.get()
         lp = line.split()
-        ip = lp[0]
-        return ip
+        return lp[0]
 
 
 class IpCombineSource(object):

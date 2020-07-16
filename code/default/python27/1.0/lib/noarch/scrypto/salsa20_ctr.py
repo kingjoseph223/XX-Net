@@ -65,8 +65,7 @@ def numpy_xor(a, b):
     ab = numpy.frombuffer(a, dtype=dtype)
     bb = numpy.frombuffer(b, dtype=dtype)
     c = numpy.bitwise_xor(ab, bb)
-    r = c.tostring()
-    return r
+    return c.tostring()
 
 
 def py_xor_str(a, b):
@@ -76,7 +75,7 @@ def py_xor_str(a, b):
             c.append(chr(ord(a[i]) ^ ord(b[i])))
         return ''.join(c)
     else:
-        for i in range(0, len(a)):
+        for i in range(len(a)):
             c.append(a[i] ^ b[i])
         return bytes(c)
 

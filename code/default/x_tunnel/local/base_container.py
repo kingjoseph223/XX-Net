@@ -124,8 +124,7 @@ class AckPool():
         return data
 
     def status(self):
-        out_string = "Ack_pool:len %d<br>\r\n" % len(self.ack_buffer)
-        return out_string
+        return "Ack_pool:len %d<br>\r\n" % len(self.ack_buffer)
 
 
 class WaitQueue():
@@ -165,7 +164,7 @@ class WaitQueue():
                 self.waiters.append((end_time, lock))
             else:
                 is_max = True
-                for i in range(0, len(self.waiters)):
+                for i in range(len(self.waiters)):
                     try:
                         iend_time, ilock = self.waiters[i]
                         if iend_time > end_time:
@@ -186,8 +185,8 @@ class WaitQueue():
 
     def status(self):
         out_string = "waiters[%d]:<br>\n" % len(self.waiters)
-        for i in range(0, len(self.waiters)):
-            end_time, lock = self.waiters[i]
+        for waiter in self.waiters:
+            end_time, lock = waiter
             out_string += "%d<br>\r\n" % ((end_time - time.time()))
 
         return out_string
@@ -343,11 +342,7 @@ class Conn(object):
         self.xlog = xlog
 
         self.transfered_close_to_peer = False
-        if sock:
-            self.next_cmd_seq = 1
-        else:
-            self.next_cmd_seq = 0
-
+        self.next_cmd_seq = 1 if sock else 0
         self.next_recv_seq = 1
 
     def start(self, block):
@@ -588,11 +583,7 @@ class Conn(object):
             self.next_recv_seq += 1
             self.received_position += len(data)
 
-            if self.received_position < 16 * 1024:
-                no_delay = True
-            else:
-                no_delay = False
-
+            no_delay = True if self.received_position < 16 * 1024 else False
             self.session.send_conn_data(self.conn_id, buf, no_delay)
 
     def transfer_ack(self, position):

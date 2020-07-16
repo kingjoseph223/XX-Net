@@ -117,19 +117,14 @@ class HTTPHeaderMap(collections.MutableMapping):
         returned in canonical form.
         """
         for pair in self._items:
-            for value in canonical_form(*pair):
-                yield value
+            yield from canonical_form(*pair)
 
     def __len__(self):
         """
         The length of this mapping is the number of individual headers in
         canonical form. Sadly, this is a somewhat expensive operation.
         """
-        size = 0
-        for _ in self:
-            size += 1
-
-        return size
+        return sum(1 for _ in self)
 
     def __contains__(self, key):
         """
@@ -178,8 +173,7 @@ class HTTPHeaderMap(collections.MutableMapping):
         and can be used to rebuild the original headers (e.g. to determine
         exactly what a server sent).
         """
-        for item in self._items:
-            yield item
+        yield from self._items
 
     def replace(self, key, value):
         """

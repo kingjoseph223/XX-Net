@@ -90,9 +90,9 @@ class Front(object):
         return self.http_dispatcher
 
     def request(self, method, host, path="/", headers={}, data="", timeout=120):
-        response = self.http_dispatcher.request(method, host, path, dict(headers), data, timeout=timeout)
-
-        return response
+        return self.http_dispatcher.request(
+            method, host, path, dict(headers), data, timeout=timeout
+        )
 
     def stop(self):
         logger.info("terminate")
@@ -159,9 +159,9 @@ class DirectFront(object):
     def request(self, method, host, path="/", headers={}, data="", timeout=60):
         dispatcher = self.get_dispatcher(host)
 
-        response = dispatcher.request(method, host, path, dict(headers), data, timeout=timeout)
-
-        return response
+        return dispatcher.request(
+            method, host, path, dict(headers), data, timeout=timeout
+        )
 
     def stop(self):
         logger.info("terminate")

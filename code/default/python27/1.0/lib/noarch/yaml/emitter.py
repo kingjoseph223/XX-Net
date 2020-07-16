@@ -146,10 +146,7 @@ class Emitter(object):
     def increase_indent(self, flow=False, indentless=False):
         self.indents.append(self.indent)
         if self.indent is None:
-            if flow:
-                self.indent = self.best_indent
-            else:
-                self.indent = 0
+            self.indent = self.best_indent if flow else 0
         elif not indentless:
             self.indent += self.best_indent
 
@@ -497,20 +494,37 @@ class Emitter(object):
             self.analysis = self.analyze_scalar(self.event.value)
         if self.event.style == '"' or self.canonical:
             return '"'
-        if not self.event.style and self.event.implicit[0]:
-            if (not (self.simple_key_context and
-                    (self.analysis.empty or self.analysis.multiline))
-                and (self.flow_level and self.analysis.allow_flow_plain
-                    or (not self.flow_level and self.analysis.allow_block_plain))):
-                return ''
-        if self.event.style and self.event.style in '|>':
-            if (not self.flow_level and not self.simple_key_context
-                    and self.analysis.allow_block):
-                return self.event.style
-        if not self.event.style or self.event.style == '\'':
-            if (self.analysis.allow_single_quoted and
-                    not (self.simple_key_context and self.analysis.multiline)):
-                return '\''
+        if (
+            not self.event.style
+            and self.event.implicit[0]
+            and (
+                not (
+                    self.simple_key_context
+                    and (self.analysis.empty or self.analysis.multiline)
+                )
+                and (
+                    self.flow_level
+                    and self.analysis.allow_flow_plain
+                    or (not self.flow_level and self.analysis.allow_block_plain)
+                )
+            )
+        ):
+            return ''
+        if (
+            self.event.style
+            and self.event.style in '|>'
+            and (
+                not self.flow_level
+                and not self.simple_key_context
+                and self.analysis.allow_block
+            )
+        ):
+            return self.event.style
+        if (not self.event.style or self.event.style == '\'') and (
+            self.analysis.allow_single_quoted
+            and not (self.simple_key_context and self.analysis.multiline)
+        ):
+            return '\''
         return '"'
 
     def process_scalar(self):
@@ -801,10 +815,7 @@ class Emitter(object):
 
     def write_indicator(self, indicator, need_whitespace,
             whitespace=False, indention=False):
-        if self.whitespace or not need_whitespace:
-            data = indicator
-        else:
-            data = u' '+indicator
+        data = indicator if self.whitespace or not need_whitespace else u' '+indicator
         self.whitespace = whitespace
         self.indention = self.indention and indention
         self.column += len(data)
@@ -886,14 +897,15 @@ class Emitter(object):
                     self.write_indent()
                     start = end
             else:
-                if ch is None or ch in u' \n\x85\u2028\u2029' or ch == u'\'':
-                    if start < end:
-                        data = text[start:end]
-                        self.column += len(data)
-                        if self.encoding:
-                            data = data.encode(self.encoding)
-                        self.stream.write(data)
-                        start = end
+                if (
+                    ch is None or ch in u' \n\x85\u2028\u2029' or ch == u'\''
+                ) and start < end:
+                    data = text[start:end]
+                    self.column += len(data)
+                    if self.encoding:
+                        data = data.encode(self.encoding)
+                    self.stream.write(data)
+                    start = end
             if ch == u'\'':
                 data = u'\'\''
                 self.column += 2
@@ -1004,41 +1016,47 @@ class Emitter(object):
             ch = None
             if end < len(text):
                 ch = text[end]
-            if breaks:
-                if ch is None or ch not in u'\n\x85\u2028\u2029':
-                    if not leading_space and ch is not None and ch != u' '  \
-                            and text[start] == u'\n':
+            if breaks and (ch is None or ch not in u'\n\x85\u2028\u2029'):
+                if not leading_space and ch is not None and ch != u' '  \
+                        and text[start] == u'\n':
+                    self.write_line_break()
+                leading_space = (ch == u' ')
+                for br in text[start:end]:
+                    if br == u'\n':
                         self.write_line_break()
-                    leading_space = (ch == u' ')
-                    for br in text[start:end]:
-                        if br == u'\n':
-                            self.write_line_break()
-                        else:
-                            self.write_line_break(br)
-                    if ch is not None:
-                        self.write_indent()
-                    start = end
-            elif spaces:
-                if ch != u' ':
-                    if start+1 == end and self.column > self.best_width:
-                        self.write_indent()
                     else:
-                        data = text[start:end]
-                        self.column += len(data)
-                        if self.encoding:
-                            data = data.encode(self.encoding)
-                        self.stream.write(data)
-                    start = end
-            else:
-                if ch is None or ch in u' \n\x85\u2028\u2029':
+                        self.write_line_break(br)
+                if ch is not None:
+                    self.write_indent()
+                start = end
+            elif (
+                breaks
+                or spaces
+                and ch == u' '
+                or not spaces
+                and ch is not None
+                and ch not in u' \n\x85\u2028\u2029'
+            ):
+                pass
+            elif spaces:
+                if start+1 == end and self.column > self.best_width:
+                    self.write_indent()
+                else:
                     data = text[start:end]
                     self.column += len(data)
                     if self.encoding:
                         data = data.encode(self.encoding)
                     self.stream.write(data)
-                    if ch is None:
-                        self.write_line_break()
-                    start = end
+                start = end
+            else:
+                data = text[start:end]
+                self.column += len(data)
+                if self.encoding:
+                    data = data.encode(self.encoding)
+                self.stream.write(data)
+                if ch is None:
+                    self.write_line_break()
+                start = end
             if ch is not None:
                 breaks = (ch in u'\n\x85\u2028\u2029')
                 spaces = (ch == u' ')
@@ -1056,25 +1074,23 @@ class Emitter(object):
             ch = None
             if end < len(text):
                 ch = text[end]
-            if breaks:
-                if ch is None or ch not in u'\n\x85\u2028\u2029':
-                    for br in text[start:end]:
-                        if br == u'\n':
-                            self.write_line_break()
-                        else:
-                            self.write_line_break(br)
-                    if ch is not None:
-                        self.write_indent()
-                    start = end
-            else:
-                if ch is None or ch in u'\n\x85\u2028\u2029':
-                    data = text[start:end]
-                    if self.encoding:
-                        data = data.encode(self.encoding)
-                    self.stream.write(data)
-                    if ch is None:
+            if breaks and (ch is None or ch not in u'\n\x85\u2028\u2029'):
+                for br in text[start:end]:
+                    if br == u'\n':
                         self.write_line_break()
-                    start = end
+                    else:
+                        self.write_line_break(br)
+                if ch is not None:
+                    self.write_indent()
+                start = end
+            elif not breaks and (ch is None or ch in u'\n\x85\u2028\u2029'):
+                data = text[start:end]
+                if self.encoding:
+                    data = data.encode(self.encoding)
+                self.stream.write(data)
+                if ch is None:
+                    self.write_line_break()
+                start = end
             if ch is not None:
                 breaks = (ch in u'\n\x85\u2028\u2029')
             end += 1

@@ -224,10 +224,7 @@ def is_private_ip(ip):
     try:
         if "." in ip:
             ip_bin = ip_string_to_num(ip)
-            for b, e in private_ipv4_range_bin:
-                if b <= ip_bin <= e:
-                    return True
-            return False
+            return any(b <= ip_bin <= e for b, e in private_ipv4_range_bin)
         else:
             if ip == "::1":
                 return True
@@ -237,10 +234,7 @@ def is_private_ip(ip):
                 return False
 
             be = ip[0:2]
-            if be in ["fc", "fd"]:
-                return True
-            else:
-                return False
+            return be in ["fc", "fd"]
     except Exception as e:
         print("is_private_ip(%s), except:%r", ip, e)
         return False

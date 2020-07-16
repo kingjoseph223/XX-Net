@@ -204,7 +204,7 @@ class _BaseSocket(socket.socket):
     def __init__(self, *pos, **kw):
         _orig_socket.__init__(self, *pos, **kw)
 
-        self._savedmethods = dict()
+        self._savedmethods = {}
         for name in self._savenames:
             self._savedmethods[name] = getattr(self, name)
             delattr(self, name)  # Allows normal overriding mechanism to work
@@ -522,8 +522,6 @@ class socksocket(_BaseSocket):
         and the resolved address as a tuple object.
         """
         host, port = addr
-        proxy_type, _, _, rdns, username, password = self.proxy
-
         if ":" in host:
             addr_bytes = inet_pton(socket.AF_INET6, host)
             file.write(b"\x04" + addr_bytes)
@@ -531,6 +529,8 @@ class socksocket(_BaseSocket):
             addr_bytes = socket.inet_aton(host)
             file.write(b"\x01" + addr_bytes)
         else:
+            proxy_type, _, _, rdns, username, password = self.proxy
+
             if rdns:
                 # Resolve remotely
                 host_bytes = host.encode('idna')

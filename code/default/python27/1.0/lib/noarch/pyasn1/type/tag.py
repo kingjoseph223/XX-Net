@@ -186,19 +186,16 @@ class TagSet(object):
         self.__baseTag = baseTag
         self.__superTags = superTags
         self.__superTagsClassId = tuple(
-            [(superTag.tagClass, superTag.tagId) for superTag in superTags]
+            (superTag.tagClass, superTag.tagId) for superTag in superTags
         )
+
         self.__lenOfSuperTags = len(superTags)
         self.__hash = hash(self.__superTagsClassId)
 
     def __repr__(self):
         representation = '-'.join(['%s:%s:%s' % (x.tagClass, x.tagFormat, x.tagId)
                                    for x in self.__superTags])
-        if representation:
-            representation = 'tags ' + representation
-        else:
-            representation = 'untagged'
-
+        representation = 'tags ' + representation if representation else 'untagged'
         return '<%s object at 0x%x %s>' % (self.__class__.__name__, id(self), representation)
 
     def __add__(self, superTag):

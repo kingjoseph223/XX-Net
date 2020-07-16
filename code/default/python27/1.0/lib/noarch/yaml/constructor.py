@@ -44,9 +44,6 @@ class BaseConstructor(object):
         while self.state_generators:
             state_generators = self.state_generators
             self.state_generators = []
-            for generator in state_generators:
-                for dummy in generator:
-                    pass
         self.constructed_objects = {}
         self.recursive_objects = {}
         self.deep_construct = False
@@ -91,10 +88,7 @@ class BaseConstructor(object):
         if isinstance(data, types.GeneratorType):
             generator = data
             data = generator.next()
-            if self.deep_construct:
-                for dummy in generator:
-                    pass
-            else:
+            if not self.deep_construct:
                 self.state_generators.append(generator)
         self.constructed_objects[node] = data
         del self.recursive_objects[node]
@@ -147,13 +141,13 @@ class BaseConstructor(object):
         return pairs
 
     def add_constructor(cls, tag, constructor):
-        if not 'yaml_constructors' in cls.__dict__:
+        if 'yaml_constructors' not in cls.__dict__:
             cls.yaml_constructors = cls.yaml_constructors.copy()
         cls.yaml_constructors[tag] = constructor
     add_constructor = classmethod(add_constructor)
 
     def add_multi_constructor(cls, tag_prefix, multi_constructor):
-        if not 'yaml_multi_constructors' in cls.__dict__:
+        if 'yaml_multi_constructors' not in cls.__dict__:
             cls.yaml_multi_constructors = cls.yaml_multi_constructors.copy()
         cls.yaml_multi_constructors[tag_prefix] = multi_constructor
     add_multi_constructor = classmethod(add_multi_constructor)

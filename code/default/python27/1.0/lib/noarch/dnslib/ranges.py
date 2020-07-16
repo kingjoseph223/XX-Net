@@ -31,11 +31,9 @@
 
 """
 
+
 import sys
-if sys.version < '3':
-    int_types = (int, long,)
-else:
-    int_types = (int,)
+int_types = (int, long) if sys.version < '3' else (int, )
 
 def range_property(attr,min,max):
     def getter(obj):

@@ -163,7 +163,7 @@ class ParseResult(namedtuple('ParseResult', PARSED_COMPONENTS),
         :rtype: str
         """
         parse_result = self
-        if use_idna and self.host:
+        if use_idna and parse_result.host:
             hostbytes = self.host.encode('idna')
             host = hostbytes.decode(self.encoding)
             parse_result = self.copy_with(host=host)

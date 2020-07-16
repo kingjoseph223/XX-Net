@@ -125,7 +125,7 @@ class Task(object):
             self.body_readed += p
             return buff_view[:p].tobytes()
         else:
-            out = list()
+            out = []
             while True:
                 data = self.read()
                 if not data:
@@ -215,15 +215,10 @@ class HttpWorker(object):
         inactive_time = now - self.last_recv_time
 
         rtt = self.rtt
-        if inactive_time > 30:
-            if rtt > 1000:
-                rtt = 1000
+        if inactive_time > 30 and rtt > 1000:
+            rtt = 1000
 
-        if self.version == "1.1":
-            rtt += 100
-        else:
-            rtt += len(self.streams) * 500
-
+        rtt += 100 if self.version == "1.1" else len(self.streams) * 500
         if inactive_time > 1:
             score = rtt
         elif inactive_time < 0.1:

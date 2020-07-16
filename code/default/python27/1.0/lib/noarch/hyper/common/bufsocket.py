@@ -145,10 +145,7 @@ class BufferedSocket(object):
             return True
 
         read = select.select([self._sck], [], [], 0)[0]
-        if read:
-            return True
-
-        return False
+        return bool(read)
 
     @property
     def buffer(self):

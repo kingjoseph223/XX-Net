@@ -79,10 +79,10 @@ class ConnectManager(object):
             self.cache[host_port].append({"create_time": time.time(), "conn": sock})
 
     def get_sock_from_cache(self, host_port):
-        time_now = time.time()
         with self.lock:
             if host_port in self.cache:
                 cache = self.cache[host_port]
+                time_now = time.time()
                 while len(cache):
                     try:
                         cc = cache.pop(0)

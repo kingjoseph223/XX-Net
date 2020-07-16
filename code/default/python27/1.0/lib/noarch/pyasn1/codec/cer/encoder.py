@@ -15,10 +15,7 @@ __all__ = ['encode']
 
 class BooleanEncoder(encoder.IntegerEncoder):
     def encodeValue(self, value, asn1Spec, encodeFun, **options):
-        if value == 0:
-            substrate = (0,)
-        else:
-            substrate = (255,)
+        substrate = (0, ) if value == 0 else (255, )
         return substrate, False, False
 
 
@@ -93,10 +90,7 @@ class SetEncoder(encoder.SequenceEncoder):
             asn1Spec = component
 
         if asn1Spec.typeId == univ.Choice.typeId and not asn1Spec.tagSet:
-            if asn1Spec.tagSet:
-                return asn1Spec.tagSet
-            else:
-                return asn1Spec.componentType.minTagSet
+            return asn1Spec.componentType.minTagSet
         else:
             return asn1Spec.tagSet
 

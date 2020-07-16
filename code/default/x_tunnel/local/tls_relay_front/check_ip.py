@@ -54,16 +54,8 @@ if __name__ == "__main__":
         print("Usage: check_ip.py [ip] [top_domain] [wait_time=0]")
     print("test ip:%s" % ip)
 
-    if len(sys.argv) > 2:
-        top_domain = sys.argv[2]
-    else:
-        top_domain = None
-
-    if len(sys.argv) > 3:
-        wait_time = int(sys.argv[3])
-    else:
-        wait_time = 0
-
+    top_domain = sys.argv[2] if len(sys.argv) > 2 else None
+    wait_time = int(sys.argv[3]) if len(sys.argv) > 3 else 0
     config_path = os.path.join(module_data_path, "tls_relay.json")
     config = Config(config_path)
 

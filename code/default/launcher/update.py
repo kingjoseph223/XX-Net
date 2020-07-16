@@ -179,7 +179,7 @@ def download_module(module, new_version):
             shutil.move(unzip_path, tag_path)
 
             msg = "Module %s new version %s downloaded, Install?" % (module, new_version)
-            if sys.platform == "linux" or sys.platform == "linux2":
+            if sys.platform in ["linux", "linux2"]:
                 from gtk_tray import sys_tray
                 data_install = "%s|%s|install" % (module, new_version)
                 data_ignore = "%s|%s|ignore" % (module, new_version)
@@ -288,57 +288,6 @@ def check_push_update():
 
         update_dict = json.loads(update_content)
         return True
-
-        for module in update_dict["modules"]:
-            new_version = str(update_dict["modules"][module]["last_version"])
-            describe = update_dict["modules"][module]["versions"][new_version]["describe"]
-
-            if update_dict["modules"][module]["versions"][new_version]["notify"] != "true":
-                continue
-
-            if not module in config.config["modules"]:
-                ignore_version = 0
-                current_version = 0
-                config.config["modules"][module] = {}
-                config.config["modules"][module]["current_version"] = '0.0.0'
-            else:
-                current_version = config.get(["modules", module, "current_version"])
-                if "ignore_version" in config.config["modules"][module]:
-                    ignore_version = config.config["modules"][module]["ignore_version"]
-                else:
-                    ignore_version = current_version
-
-            if version_to_bin(new_version) <= version_to_bin(ignore_version):
-                continue
-
-            if version_to_bin(new_version) > version_to_bin(current_version):
-                xlog.info("new %s version:%s", module, new_version)
-
-                if sys.platform == "linux" or sys.platform == "linux2":
-                    from gtk_tray import sys_tray
-                    msg = "Module %s new version: %s, Download?\nNew:%s" % (module, new_version, describe)
-                    data_download = "%s|%s|download" % (module, new_version)
-                    data_ignore = "%s|%s|ignore" % (module, new_version)
-                    buttons = {1: {"data": data_download, "label": "Download", 'callback': general_gtk_callback},
-                               2: {"data": data_ignore, "label": "Ignore", 'callback': general_gtk_callback}}
-                    sys_tray.notify_general(msg=msg, title="New Version", buttons=buttons)
-                elif sys.platform == "win32":
-                    from win_tray import sys_tray
-                    msg = "Module %s new version: %s, Download?" % (module, new_version)
-                    if sys_tray.dialog_yes_no(msg, u"Download", None, None) == 1:
-                        download_module(module, new_version)
-                    else:
-                        ignore_module(module, new_version)
-                elif sys.platform == "darwin":
-                    from mac_tray import sys_tray
-                    msg = "Module %s new version: %s, Download?" % (module, new_version)
-                    if sys_tray.presentAlert_withTitle_(msg, "Download"):
-                        download_module(module, new_version)
-                    else:
-                        ignore_module(module, new_version)
-
-                else:
-                    download_module(module, new_version)
 
     except Exception as e:
         xlog.exception("check_update except:%s", e)

@@ -116,10 +116,7 @@ logger = 0
 def setLogger(userLogger):
     global logger
 
-    if userLogger:
-        logger = userLogger
-    else:
-        logger = 0
+    logger = userLogger if userLogger else 0
 
 
 def hexdump(octets):

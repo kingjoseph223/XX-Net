@@ -57,8 +57,7 @@ class ConnectPool():
                         return None
                     self.not_empty.wait(remaining)
 
-            item = self._get()
-            return item
+            return self._get()
         finally:
             self.not_empty.release()
 
@@ -215,10 +214,7 @@ class ConnectManager(object):
             self.connect_process()
 
     def _need_more_ip(self):
-        if self.https_get_num:
-            return True
-        else:
-            return False
+        return bool(self.https_get_num)
 
     def create_more_connection(self):
         if not self.connecting_more_thread:

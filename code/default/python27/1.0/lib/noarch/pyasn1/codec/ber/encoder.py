@@ -61,11 +61,7 @@ class AbstractItemEncoder(object):
 
     def encode(self, value, asn1Spec=None, encodeFun=None, **options):
 
-        if asn1Spec is None:
-            tagSet = value.tagSet
-        else:
-            tagSet = asn1Spec.tagSet
-
+        tagSet = value.tagSet if asn1Spec is None else asn1Spec.tagSet
         # untagged item?
         if not tagSet:
             substrate, isConstructed, isOctets = self.encodeValue(
@@ -147,11 +143,7 @@ class BitStringEncoder(AbstractItemEncoder):
             value = asn1Spec.clone(value)
 
         valueLength = len(value)
-        if valueLength % 8:
-            alignedValue = value << (8 - valueLength % 8)
-        else:
-            alignedValue = value
-
+        alignedValue = value << (8 - valueLength % 8) if valueLength % 8 else value
         maxChunkSize = options.get('maxChunkSize', 0)
         if not maxChunkSize or len(alignedValue) <= maxChunkSize * 8:
             substrate = alignedValue.asOctets()
@@ -160,11 +152,7 @@ class BitStringEncoder(AbstractItemEncoder):
         baseTag = value.tagSet.baseTag
 
         # strip off explicit tags
-        if baseTag:
-            tagSet = tag.TagSet(baseTag, baseTag)
-        else:
-            tagSet = tag.TagSet()
-
+        tagSet = tag.TagSet(baseTag, baseTag) if baseTag else tag.TagSet()
         alignedValue = alignedValue.clone(tagSet=tagSet)
 
         stop = 0
@@ -203,22 +191,14 @@ class OctetStringEncoder(AbstractItemEncoder):
                 baseTag = value.tagSet.baseTag
 
                 # strip off explicit tags
-                if baseTag:
-                    tagSet = tag.TagSet(baseTag, baseTag)
-                else:
-                    tagSet = tag.TagSet()
-
+                tagSet = tag.TagSet(baseTag, baseTag) if baseTag else tag.TagSet()
                 asn1Spec = value.clone(tagSet=tagSet)
 
             elif not isOctetsType(value):
                 baseTag = asn1Spec.tagSet.baseTag
 
                 # strip off explicit tags
-                if baseTag:
-                    tagSet = tag.TagSet(baseTag, baseTag)
-                else:
-                    tagSet = tag.TagSet()
-
+                tagSet = tag.TagSet(baseTag, baseTag) if baseTag else tag.TagSet()
                 asn1Spec = asn1Spec.clone(tagSet=tagSet)
 
             pos = 0
@@ -387,7 +367,7 @@ class RealEncoder(AbstractItemEncoder):
                 raise error.PyAsn1Error('Scale factor overflow')  # bug if raised
             fo |= sf << 2
             eo = null
-            if e == 0 or e == -1:
+            if e in [0, -1]:
                 eo = int2oct(e & 0xff)
             else:
                 while e not in (0, -1):
@@ -611,20 +591,12 @@ class Encoder(object):
 
     def __call__(self, value, asn1Spec=None, **options):
         try:
-            if asn1Spec is None:
-                typeId = value.typeId
-            else:
-                typeId = asn1Spec.typeId
-
+            typeId = value.typeId if asn1Spec is None else asn1Spec.typeId
         except AttributeError:
             raise error.PyAsn1Error('Value %r is not ASN.1 type instance '
                                     'and "asn1Spec" not given' % (value,))
 
-        if debug.logger & debug.flagEncoder:
-            logger = debug.logger
-        else:
-            logger = None
-
+        logger = debug.logger if debug.logger & debug.flagEncoder else None
         if logger:
             logger('encoder called in %sdef mode, chunk size %s for '
                    'type %s, value:\n%s' % (not options.get('defMode', True) and 'in' or '', options.get('maxChunkSize', 0), asn1Spec is None and value.prettyPrintType() or asn1Spec.prettyPrintType(), value))
@@ -643,11 +615,7 @@ class Encoder(object):
                 logger('using value codec %s chosen by type ID %s' % (concreteEncoder.__class__.__name__, typeId))
 
         except KeyError:
-            if asn1Spec is None:
-                tagSet = value.tagSet
-            else:
-                tagSet = asn1Spec.tagSet
-
+            tagSet = value.tagSet if asn1Spec is None else asn1Spec.tagSet
             # use base type for codec lookup to recover untagged types
             baseTagSet = tag.TagSet(tagSet.baseTag, tagSet.baseTag)
 

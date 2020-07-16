@@ -169,7 +169,7 @@ def uploads(appids, rc4_password):
     clean_cookie_file()
     logging.info("=======================")
 
-    if len(success_appid_list) > 0:
+    if success_appid_list:
         logging.info("Deploy %d appid successed." % len(success_appid_list))
 
     if len(fail_appid_list) > 0:
@@ -213,7 +213,7 @@ def main():
 
             i += 1
 
-    if skip_proxy == False:
+    if not skip_proxy:
         os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:8087'
         logging.info("set proxy to http://127.0.0.1:8087")
 

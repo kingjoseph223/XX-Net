@@ -87,11 +87,7 @@ def is_clienthello(data):
 
 
 def have_ipv6(ips):
-    for ip in ips:
-        if ":" in ip:
-            return True
-
-    return False
+    return any(":" in ip for ip in ips)
 
 
 def extract_sni_name(packet):
@@ -114,8 +110,7 @@ def extract_sni_name(packet):
         elen, = struct.unpack('>h', stream.read(2))
         edata = stream.read(elen)
         if etype == 0:
-            server_name = edata[5:]
-            return server_name
+            return edata[5:]
 
 
 def netloc_to_host_port(netloc, default_port=80):
@@ -129,19 +124,14 @@ def netloc_to_host_port(netloc, default_port=80):
 
 
 def get_sni(sock, left_buf=""):
-    if left_buf:
-        leadbyte = left_buf[0]
-    else:
-        leadbyte = sock.recv(1, socket.MSG_PEEK)
-
+    leadbyte = left_buf[0] if left_buf else sock.recv(1, socket.MSG_PEEK)
     if leadbyte in ('\x80', '\x16'):
         if leadbyte == '\x16':
             for _ in xrange(2):
                 leaddata = left_buf + sock.recv(1024, socket.MSG_PEEK)
                 if is_clienthello(leaddata):
                     try:
-                        server_name = extract_sni_name(leaddata)
-                        return server_name
+                        return extract_sni_name(leaddata)
                     except:
                         break
 
@@ -381,10 +371,7 @@ def try_loop(scense, rule_list, sock, host, port, client_address, left_buf=""):
                 return
 
             elif rule == "direct":
-                if is_ipv6_ok():
-                    query_type = None
-                else:
-                    query_type = 1
+                query_type = None if is_ipv6_ok() else 1
                 ips = g.dns_srv.query(host, query_type)
 
                 if not g.gae_proxy.check_local_network.IPv6.is_ok():
@@ -474,9 +461,8 @@ def handle_ip_proxy(sock, ip, port, client_address):
         sock = SocketWrap(sock, client_address[0], client_address[1])
 
     rule = g.user_rules.check_host(ip, port)
-    if not rule:
-        if utils.is_private_ip(ip):
-            rule = "direct"
+    if not rule and utils.is_private_ip(ip):
+        rule = "direct"
 
     if rule:
         return try_loop("ip user", [rule], sock, ip, port, client_address)

@@ -71,7 +71,7 @@ def test_appid_exist(ssl_sock, appid):
 
 
 def test_appid(appid):
-    for i in range(0, 3):
+    for _ in range(3):
         ssl_sock = direct_front.connect_manager.get_ssl_connection()
         if not ssl_sock:
             continue
@@ -456,13 +456,13 @@ class ControlHandler(simple_http_server.HttpServerHandler):
 
         if reqs['cmd'] == ['deploy']:
             appid = self.postvars['appid'][0]
-            debug = int(self.postvars['debug'][0])
-
-            if deploy_proc and deploy_proc.poll() == None:
+            if deploy_proc and deploy_proc.poll() is None:
                 xlog.warn("deploy is running, request denied.")
                 data = '{"res":"deploy is running", "time":"%s"}' % time_now
 
             else:
+                debug = int(self.postvars['debug'][0])
+
                 try:
                     download_gae_lib.check_lib_or_download()
 
@@ -481,7 +481,7 @@ class ControlHandler(simple_http_server.HttpServerHandler):
                     data = '{"res":"%s", "time":"%s"}' % (e, time_now)
 
         elif reqs['cmd'] == ['cancel']:
-            if deploy_proc and deploy_proc.poll() == None:
+            if deploy_proc and deploy_proc.poll() is None:
                 deploy_proc.kill()
                 data = '{"res":"deploy is killed", "time":"%s"}' % time_now
             else:
@@ -496,11 +496,7 @@ class ControlHandler(simple_http_server.HttpServerHandler):
 
             status = 'init'
             if deploy_proc:
-                if deploy_proc.poll() == None:
-                    status = 'running'
-                else:
-                    status = 'finished'
-
+                status = 'running' if deploy_proc.poll() is None else 'finished'
             data = json.dumps({'status': status, 'log': content, 'time': time_now})
 
         self.send_response_nc('text/html', data)
@@ -584,11 +580,7 @@ class ControlHandler(simple_http_server.HttpServerHandler):
                 down_fail_time = time_now - down_fail_time
 
             data_active = front.ip_manager.ip_dict[ip]["data_active"]
-            if data_active:
-                active_time = time_now - data_active
-            else:
-                active_time = 0
-
+            active_time = time_now - data_active if data_active else 0
             history = front.ip_manager.ip_dict[ip]["history"]
             t0 = 0
             str_out = ''

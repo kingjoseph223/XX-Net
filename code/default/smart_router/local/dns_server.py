@@ -166,15 +166,11 @@ class DnsClient(object):
         if loop_count > 10:
             return []
 
-        if type is None:
-            types = [1, 28]
-        else:
-            types = [type]
-
+        types = [1, 28] if type is None else [type]
         ips = []
         for t in types:
             query_time = 0
-            for i in range(0, 3):
+            for _ in range(3):
                 server_ip = self.dns_server.get_fastest_public()
                 if not server_ip:
                     return []
@@ -200,11 +196,7 @@ class DnsClient(object):
                     for r in p.rr:
                         ip = str(r.rdata)
                         if utils.check_ip_valid(ip):
-                            if "." in ip and g.ip_region.check_ip(ip):
-                                cn = g.ip_region.cn
-                            else:
-                                cn = "XX"
-
+                            cn = g.ip_region.cn if "." in ip and g.ip_region.check_ip(ip) else "XX"
                             if type ==1 and "." not in ip:
                                 continue
 
@@ -293,10 +285,7 @@ class DnsClient(object):
                         self.sock.sendto(req_pack, (server, 53))
                         continue
 
-                    if "." in ip and g.ip_region.check_ip(ip):
-                        cn = g.ip_region.cn
-                    else:
-                        cn = "XX"
+                    cn = g.ip_region.cn if "." in ip and g.ip_region.check_ip(ip) else "XX"
                     ips.append(ip+"|"+cn)
 
                 if ips:
@@ -405,8 +394,6 @@ class DnsServer(object):
             return
         except:
             xlog.warn("bind DNS %s:%d fail", bind_ip, self.port)
-            pass
-
         try:
             sock.bind((bind_ip, self.backup_port))
             xlog.info("start DNS server at %s:%d", bind_ip, self.backup_port)
@@ -424,9 +411,9 @@ class DnsServer(object):
     def in_country(self, ips):
         for ip_cn in ips:
             ipcn_p = ip_cn.split("|")
-            ip = ipcn_p[0]
             cn = ipcn_p[1]
             if cn == g.config.country_code:
+                ip = ipcn_p[0]
                 return True
         return False
 

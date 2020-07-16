@@ -146,10 +146,7 @@ class TimeMixIn(object):
 
         if dt.utcoffset():
             seconds = dt.utcoffset().seconds
-            if seconds < 0:
-                text += '-'
-            else:
-                text += '+'
+            text += '-' if seconds < 0 else '+'
             text += '%.2d%.2d' % (seconds // 3600, seconds % 3600)
         else:
             text += 'Z'

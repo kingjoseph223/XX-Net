@@ -154,11 +154,7 @@ class Encoder(object):
         if not isinstance(value, base.Asn1Item):
             raise error.PyAsn1Error('value is not valid (should be an instance of an ASN.1 Item)')
 
-        if debug.logger & debug.flagEncoder:
-            logger = debug.logger
-        else:
-            logger = None
-
+        logger = debug.logger if debug.logger & debug.flagEncoder else None
         if logger:
             debug.scope.push(type(value).__name__)
             logger('encoder called for type %s <%s>' % (type(value).__name__, value.prettyPrint()))

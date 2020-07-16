@@ -363,8 +363,7 @@ class Stream(object):
             as they arrive, and terminate when the original stream closes.
         """
         while True:
-            for pair in self.promised_headers.items():
-                yield pair
+            yield from self.promised_headers.items()
             self.promised_headers = {}
             if not capture_all or self._remote_closed:
                 break
